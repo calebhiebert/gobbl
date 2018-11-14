@@ -18,6 +18,7 @@ type Context struct {
 	StartedAt    int64
 	Session      map[string]interface{}
 	sessionStore SessionStore
+	Flags        map[string]interface{}
 }
 
 // Turns an input context struct into a full context
@@ -28,6 +29,7 @@ func (ic InputContext) Transform(bot *Bot) *Context {
 		StartedAt:   time.Now().Unix(),
 		R:           ic.Response,
 		AutoRespond: true,
+		Flags:       make(map[string]interface{}),
 	}
 
 	return &ctx
@@ -40,4 +42,18 @@ func (c Context) SaveSession() error {
 // Gets the number of milliseconds since the context was created
 func (c Context) Elapsed() int64 {
 	return time.Now().Unix() - c.StartedAt
+}
+
+func (c Context) Flag(key string, value interface{}) {
+	c.Flags[key] = value
+}
+
+func (c Context) HasFlag(key string) bool {
+	_, exists := c.Flags[key]
+
+	return exists
+}
+
+func (c Context) GetFlag(key string) interface{} {
+	return c.Flags[key]
 }

@@ -29,11 +29,11 @@ type User struct {
 }
 
 type APIError struct {
-	FBTraceID string `json:"fbtrace_id"`
-	Message   string `json:"message"`
-	Type      string `json:"type"`
-	Code      int    `json:"code"`
-	SubCode   int    `json:"error_subcode"`
+	FBTraceID string  `json:"fbtrace_id"`
+	Message   string  `json:"message"`
+	Type      string  `json:"type"`
+	Code      float64 `json:"code"`
+	SubCode   float64 `json:"error_subcode"`
 }
 
 type OutgoingMessage struct {

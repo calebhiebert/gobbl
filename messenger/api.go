@@ -3,6 +3,7 @@ package fb
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -47,7 +48,16 @@ func (m *MessengerAPI) SendMessage(recipient *User, messageType string, message 
 		return nil, err
 	}
 
-	return readBodyJson(resp.Body)
+	responseBody, err := readBodyJson(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+		return responseBody, nil
+	} else {
+		return nil, errors.New(fmt.Sprintf("%+v", *responseBody))
+	}
 }
 
 func (m *MessengerAPI) SenderAction(recipient *User, action string) (*interface{}, error) {
@@ -66,7 +76,16 @@ func (m *MessengerAPI) SenderAction(recipient *User, action string) (*interface{
 		return nil, err
 	}
 
-	return readBodyJson(resp.Body)
+	responseBody, err := readBodyJson(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+		return responseBody, nil
+	} else {
+		return nil, errors.New(fmt.Sprintf("%+v", *responseBody))
+	}
 }
 
 func (m *MessengerAPI) UserInfo(psid string) (*interface{}, error) {
@@ -75,7 +94,17 @@ func (m *MessengerAPI) UserInfo(psid string) (*interface{}, error) {
 		return nil, err
 	}
 
-	return readBodyJson(resp.Body)
+	body, err := readBodyJson(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+		return body, nil
+	} else {
+
+		return nil, mapError(*body)
+	}
 }
 
 // Reads a http response body and parses the json into an interface
@@ -95,4 +124,23 @@ func readBodyJson(body io.ReadCloser) (*interface{}, error) {
 	}
 
 	return &bodyJson, nil
+}
+
+func mapError(err interface{}) APIError {
+	apiErr := APIError{}
+
+	errMap := err.(map[string]interface{})
+	errObj := errMap["error"].(map[string]interface{})
+
+	apiErr.Code = errObj["code"].(float64)
+	apiErr.SubCode = errObj["error_subcode"].(float64)
+	apiErr.Message = errObj["message"].(string)
+	apiErr.FBTraceID = errObj["fbtrace_id"].(string)
+	apiErr.Type = errObj["type"].(string)
+
+	return apiErr
+}
+
+func (e APIError) Error() string {
+	return e.Message
 }

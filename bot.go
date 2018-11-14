@@ -23,6 +23,13 @@ func (b *Bot) Use(f MiddlewareFunction) {
 }
 
 func (b *Bot) Execute(input *InputContext) (*[]Context, error) {
+	// Recovery function
+	// defer func() {
+	// 	if r := recover(); r != nil {
+	// 		fmt.Println("Recovered from panic", r)
+	// 	}
+	// }()
+
 	preparedContext := input.Transform(b)
 
 	err := b.exec(preparedContext)
