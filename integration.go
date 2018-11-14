@@ -1,4 +1,4 @@
-package main
+package cap
 
 type Integration interface {
 

@@ -1,4 +1,4 @@
-package main
+package cap
 
 func SessionMiddleware() MiddlewareFunction {
 	return func(c *Context, next NextFunction) error {
