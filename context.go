@@ -5,12 +5,12 @@ import "time"
 type InputContext struct {
 	RawRequest  interface{}
 	Integration Integration
-	Response    Response
+	Response    interface{}
 }
 
 type Context struct {
 	RawRequest   *interface{}
-	User         User
+	User         *User
 	Integration  Integration
 	AutoRespond  bool
 	R            interface{}
@@ -27,6 +27,7 @@ func (ic InputContext) Transform(bot *Bot) *Context {
 		Integration: ic.Integration,
 		StartedAt:   time.Now().Unix(),
 		R:           ic.Response,
+		AutoRespond: true,
 	}
 
 	return &ctx

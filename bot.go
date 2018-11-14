@@ -1,5 +1,9 @@
 package main
 
+import (
+	"fmt"
+)
+
 type Bot struct {
 	middlewares []MiddlewareFunction
 }
@@ -8,18 +12,18 @@ type DispatchFunction func(i int) error
 
 func New() *Bot {
 	bot := Bot{
-		middlewares: make([]MiddlewareFunction, 0),
+		middlewares: []MiddlewareFunction{},
 	}
 
 	return &bot
 }
 
-func (b Bot) Use(f MiddlewareFunction) {
+func (b *Bot) Use(f MiddlewareFunction) {
 	b.middlewares = append(b.middlewares, f)
 }
 
-func (b Bot) Execute(input *InputContext) (*[]Context, error) {
-	preparedContext := input.Transform(&b)
+func (b *Bot) Execute(input *InputContext) (*[]Context, error) {
+	preparedContext := input.Transform(b)
 
 	err := b.exec(preparedContext)
 
@@ -28,10 +32,17 @@ func (b Bot) Execute(input *InputContext) (*[]Context, error) {
 		return nil, err
 	}
 
+	if preparedContext.AutoRespond {
+		_, err := preparedContext.Integration.Respond(preparedContext)
+		if err != nil {
+			fmt.Printf("Error while auto responding %+v", err)
+		}
+	}
+
 	return &[]Context{*preparedContext}, nil
 }
 
-func (b Bot) exec(c *Context) error {
+func (b *Bot) exec(c *Context) error {
 	stackPosition := -1
 
 	var dispatch DispatchFunction

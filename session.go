@@ -3,6 +3,10 @@ package main
 func SessionMiddleware() MiddlewareFunction {
 	return func(c *Context, next NextFunction) error {
 
+		if c.sessionStore == nil {
+			return next()
+		}
+
 		session, err := c.sessionStore.Get(c.User.ID)
 		if err != nil {
 			return err

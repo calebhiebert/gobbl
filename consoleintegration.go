@@ -9,7 +9,7 @@ import (
 type ConsoleIntegration struct {
 }
 
-func (ci ConsoleIntegration) GenericRequest(c *Context) (*GenericRequest, error) {
+func (ci *ConsoleIntegration) GenericRequest(c *Context) (*GenericRequest, error) {
 	genericRequest := GenericRequest{
 		Text: (*c.RawRequest).(string),
 	}
@@ -17,7 +17,7 @@ func (ci ConsoleIntegration) GenericRequest(c *Context) (*GenericRequest, error)
 	return &genericRequest, nil
 }
 
-func (ci ConsoleIntegration) User(c *Context) (*User, error) {
+func (ci *ConsoleIntegration) User(c *Context) (*User, error) {
 	user := User{
 		ID:        "consoleid",
 		FirstName: "John",
@@ -28,15 +28,15 @@ func (ci ConsoleIntegration) User(c *Context) (*User, error) {
 	return &user, nil
 }
 
-func (ci ConsoleIntegration) Respond(c *Context) (*interface{}, error) {
-	for _, msg := range c.R.(BasicResponse).messages {
-		fmt.Printf("> %s\n", msg)
+func (ci *ConsoleIntegration) Respond(c *Context) (*interface{}, error) {
+	for _, msg := range c.R.(*BasicResponse).messages {
+		fmt.Printf("[bot] %s\n", msg)
 	}
 
 	return nil, nil
 }
 
-func (ci ConsoleIntegration) Listen(bot *Bot) {
+func (ci *ConsoleIntegration) Listen(bot *Bot) {
 	reader := bufio.NewReader(os.Stdin)
 
 	var input = ""
@@ -52,7 +52,7 @@ func (ci ConsoleIntegration) Listen(bot *Bot) {
 		inputCtx := InputContext{
 			RawRequest:  input,
 			Integration: ci,
-			Response:    BasicResponse{},
+			Response:    &BasicResponse{},
 		}
 
 		_, err = bot.Execute(&inputCtx)
