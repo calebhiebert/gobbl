@@ -1,7 +1,17 @@
 package main
 
+import "errors"
+
 type MemoryStore struct {
 	sessions map[string]map[string]interface{}
+}
+
+var ErrSessionNonexistant = errors.New("Session did not exist")
+
+func CreateMemoryStore() MemoryStore {
+	ms := MemoryStore{}
+	ms.sessions = make(map[string]map[string]interface{})
+	return ms
 }
 
 func (m MemoryStore) Create(id string, data *map[string]interface{}) error {
@@ -10,7 +20,10 @@ func (m MemoryStore) Create(id string, data *map[string]interface{}) error {
 }
 
 func (m MemoryStore) Get(id string) (*map[string]interface{}, error) {
-	session := m.sessions[id]
+	session, ok := m.sessions[id]
+	if !ok {
+		return nil, ErrSessionNonexistant
+	}
 
 	return &session, nil
 }
@@ -19,7 +32,11 @@ func (m MemoryStore) Update(id string, data *map[string]interface{}) error {
 
 	existingSession, err := m.Get(id)
 	if err != nil {
-		return err
+		if err == ErrSessionNonexistant {
+			return m.Create(id, data)
+		} else {
+			return err
+		}
 	}
 
 	if existingSession != nil {
@@ -37,8 +54,6 @@ func (m MemoryStore) Update(id string, data *map[string]interface{}) error {
 
 		m.sessions[id] = newSession
 
-	} else {
-		return m.Create(id, data)
 	}
 
 	return nil
@@ -46,6 +61,6 @@ func (m MemoryStore) Update(id string, data *map[string]interface{}) error {
 }
 
 func (m MemoryStore) Destroy(id string) error {
-	m.sessions[id] = nil
+	delete(m.sessions, id)
 	return nil
 }

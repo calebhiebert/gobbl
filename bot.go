@@ -6,12 +6,20 @@ type Bot struct {
 
 type DispatchFunction func(i int) error
 
+func New() *Bot {
+	bot := Bot{
+		middlewares: make([]MiddlewareFunction, 0),
+	}
+
+	return &bot
+}
+
 func (b Bot) Use(f MiddlewareFunction) {
 	b.middlewares = append(b.middlewares, f)
 }
 
 func (b Bot) Execute(input *InputContext) (*[]Context, error) {
-	preparedContext := prepareContext(input)
+	preparedContext := input.Transform(&b)
 
 	err := b.exec(preparedContext)
 
@@ -45,12 +53,4 @@ func (b Bot) exec(c *Context) error {
 	}
 
 	return dispatch(0)
-}
-
-// Turns a context input into a prepared context
-func prepareContext(input *InputContext) *Context {
-
-	ctx := Context{}
-
-	return &ctx
 }

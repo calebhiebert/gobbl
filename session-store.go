@@ -17,7 +17,7 @@ type SessionStore interface {
 
 	/*
 		Returns an existing session
-		Returns nil if the session does not exist
+		Returns a ErrSessionNonexistant error if the session does not exist
 	*/
 	Get(id string) (*map[string]interface{}, error)
 
