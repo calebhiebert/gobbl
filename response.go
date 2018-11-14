@@ -1,4 +1,4 @@
-package cap
+package cpn
 
 type BasicResponse struct {
 	messages []string

@@ -1,4 +1,4 @@
-package cap
+package cpn
 
 import (
 	"fmt"
