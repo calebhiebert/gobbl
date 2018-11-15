@@ -105,7 +105,7 @@ func (m *MessengerIntegration) Respond(c *cpn.Context) (*interface{}, error) {
 		return nil, errors.New("Unable to respond, user id missing")
 	}
 
-	response := c.R.(MBResponse)
+	response := c.R.(*MBResponse)
 
 	// Append quick replies to the last message if they exist
 	if len(response.QuickReplies) > 0 {
@@ -218,7 +218,7 @@ func (m *MessengerIntegration) ServeHTTP(rw http.ResponseWriter, req *http.Reque
 			inputCtx := cpn.InputContext{
 				RawRequest:  message,
 				Integration: m,
-				Response: MBResponse{
+				Response: &MBResponse{
 					Messages:      []OutgoingMessage{},
 					QuickReplies:  []QuickReply{},
 					MinTypingTime: []time.Duration{time.Second},
