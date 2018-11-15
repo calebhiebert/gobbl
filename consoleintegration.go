@@ -9,12 +9,12 @@ import (
 type ConsoleIntegration struct {
 }
 
-func (ci *ConsoleIntegration) GenericRequest(c *Context) (*GenericRequest, error) {
+func (ci *ConsoleIntegration) GenericRequest(c *Context) (GenericRequest, error) {
 	genericRequest := GenericRequest{
 		Text: c.RawRequest.(string),
 	}
 
-	return &genericRequest, nil
+	return genericRequest, nil
 }
 
 func (ci *ConsoleIntegration) User(c *Context) (User, error) {

@@ -32,7 +32,7 @@ type MessengerIntegration struct {
 // If the event is a referral, it will be the ref property.
 // This method will also sest the fb:eventtype flag on the context, it will be one of the following values:
 // quickreply, message, payload, referral
-func (m *MessengerIntegration) GenericRequest(c *cpn.Context) (*cpn.GenericRequest, error) {
+func (m *MessengerIntegration) GenericRequest(c *cpn.Context) (cpn.GenericRequest, error) {
 	genericRequest := cpn.GenericRequest{}
 	fbRequest := c.RawRequest.(MessagingItem)
 
@@ -67,7 +67,7 @@ func (m *MessengerIntegration) GenericRequest(c *cpn.Context) (*cpn.GenericReque
 		c.Flag("fb:eventtype", "referral")
 	}
 
-	return &genericRequest, nil
+	return genericRequest, nil
 }
 
 // User will extract a user's psid from a facebook webhook request

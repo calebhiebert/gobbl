@@ -8,7 +8,7 @@ func RequestExtractionMiddleware() MiddlewareFunction {
 			return err
 		}
 
-		c.Request = *req
+		c.Request = req
 
 		return c.Next()
 	}
