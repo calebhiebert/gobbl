@@ -9,8 +9,8 @@ type InputContext struct {
 }
 
 type Context struct {
-	RawRequest   *interface{}
-	User         *User
+	RawRequest   interface{}
+	User         User
 	Integration  Integration
 	AutoRespond  bool
 	R            interface{}
@@ -19,12 +19,13 @@ type Context struct {
 	Session      map[string]interface{}
 	sessionStore SessionStore
 	Flags        map[string]interface{}
+	Next         NextFunction
 }
 
 // Turns an input context struct into a full context
 func (ic InputContext) Transform(bot *Bot) *Context {
 	ctx := Context{
-		RawRequest:  &ic.RawRequest,
+		RawRequest:  ic.RawRequest,
 		Integration: ic.Integration,
 		StartedAt:   time.Now().Unix(),
 		R:           ic.Response,

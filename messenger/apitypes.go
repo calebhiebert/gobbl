@@ -1,3 +1,9 @@
+/*
+	apitypes.go
+
+	This file contains the types for the Messenger API
+*/
+
 package fb
 
 var MessageTypeMessageTag string = "MESSAGE_TAG"
@@ -91,4 +97,9 @@ type QuickReply struct {
 	Title       string `json:"title,omitempty"`
 	Payload     string `json:"payload,omitempty"`
 	ImageURL    string `json:"image_url,omitempty"`
+}
+
+type MessageSendResponse struct {
+	RecipientID string `json:"recipient_id"`
+	MessageID   string `json:"message_id"`
 }

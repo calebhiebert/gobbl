@@ -1,3 +1,10 @@
+/*
+	bot.go
+
+	This file contains the main bot/middleware implementation
+*/
+
+// Package cpn contains some helpers for building a chatbot
 package cpn
 
 import (
@@ -10,6 +17,7 @@ type Bot struct {
 
 type DispatchFunction func(i int) error
 
+// New creates a new bot instance
 func New() *Bot {
 	bot := Bot{
 		middlewares: []MiddlewareFunction{},
@@ -18,18 +26,15 @@ func New() *Bot {
 	return &bot
 }
 
+// Use will add a new middleware to the bot.
+// Middlewares will be executed in the order that they were added
 func (b *Bot) Use(f MiddlewareFunction) {
 	b.middlewares = append(b.middlewares, f)
 }
 
+// Execute will take the InputContext and generate a full context from it.
+// It will take this full context
 func (b *Bot) Execute(input *InputContext) (*[]Context, error) {
-	// Recovery function
-	// defer func() {
-	// 	if r := recover(); r != nil {
-	// 		fmt.Println("Recovered from panic", r)
-	// 	}
-	// }()
-
 	preparedContext := input.Transform(b)
 
 	err := b.exec(preparedContext)
@@ -65,9 +70,11 @@ func (b *Bot) exec(c *Context) error {
 
 		currentMiddleware := b.middlewares[i]
 
-		return currentMiddleware(c, func() error {
+		c.Next = func() error {
 			return dispatch(i + 1)
-		})
+		}
+
+		return currentMiddleware(c)
 	}
 
 	return dispatch(0)

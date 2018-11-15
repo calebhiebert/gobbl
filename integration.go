@@ -6,7 +6,7 @@ type Integration interface {
 	GenericRequest(c *Context) (*GenericRequest, error)
 
 	// Extract a user object from the request
-	User(c *Context) (*User, error)
+	User(c *Context) (User, error)
 
 	// Uses the information in the context to respond to the request
 	Respond(c *Context) (*interface{}, error)

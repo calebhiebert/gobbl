@@ -1,10 +1,10 @@
 package cpn
 
 func SessionMiddleware() MiddlewareFunction {
-	return func(c *Context, next NextFunction) error {
+	return func(c *Context) error {
 
 		if c.sessionStore == nil {
-			return next()
+			return c.Next()
 		}
 
 		session, err := c.sessionStore.Get(c.User.ID)
@@ -14,7 +14,7 @@ func SessionMiddleware() MiddlewareFunction {
 
 		c.Session = *session
 
-		err = next()
+		err = c.Next()
 		if err != nil {
 			return err
 		}

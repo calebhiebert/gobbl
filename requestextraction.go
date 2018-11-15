@@ -1,7 +1,7 @@
 package cpn
 
 func RequestExtractionMiddleware() MiddlewareFunction {
-	return func(c *Context, next NextFunction) error {
+	return func(c *Context) error {
 
 		req, err := c.Integration.GenericRequest(c)
 		if err != nil {
@@ -10,6 +10,6 @@ func RequestExtractionMiddleware() MiddlewareFunction {
 
 		c.Request = *req
 
-		return next()
+		return c.Next()
 	}
 }

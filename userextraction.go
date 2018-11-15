@@ -1,8 +1,7 @@
 package cpn
 
 func UserExtractionMiddleware() MiddlewareFunction {
-	return func(c *Context, next NextFunction) error {
-
+	return func(c *Context) error {
 		user, err := c.Integration.User(c)
 		if err != nil {
 			return err
@@ -10,6 +9,6 @@ func UserExtractionMiddleware() MiddlewareFunction {
 
 		c.User = user
 
-		return next()
+		return c.Next()
 	}
 }

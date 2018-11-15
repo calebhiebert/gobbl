@@ -1,3 +1,9 @@
+/*
+	webhooktypes.go
+
+	This file contains the types for incoming Facebook webhook requests
+*/
+
 package fb
 
 type WebhookRequest struct {

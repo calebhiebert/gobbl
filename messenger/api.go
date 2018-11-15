@@ -1,3 +1,9 @@
+/*
+	api.go
+
+	This file contains a small subset of the facebook graph api, specifically the api routes used for building chatbots
+*/
+
 package fb
 
 import (
@@ -17,6 +23,8 @@ type MessengerAPI struct {
 	baseURL     string
 }
 
+// CreateMessengerAPI will create a functional messenger api that is setup to use the provided access token.
+// This will create an internal http client with a timeout set to 6 seconds
 func CreateMessengerAPI(accessToken string) *MessengerAPI {
 	mapi := MessengerAPI{
 		accessToken: accessToken,
@@ -30,6 +38,9 @@ func CreateMessengerAPI(accessToken string) *MessengerAPI {
 	return &mapi
 }
 
+// SendMessage will send a messenger message.
+// An error will be returned if Facebook returns a non 2xx status code.
+// Official documentation can be found here: https://developers.facebook.com/docs/messenger-platform/reference/send-api/
 func (m *MessengerAPI) SendMessage(recipient *User, messageType string, message *OutgoingMessage) (*interface{}, error) {
 
 	body := map[string]interface{}{
@@ -60,6 +71,8 @@ func (m *MessengerAPI) SendMessage(recipient *User, messageType string, message 
 	}
 }
 
+// SenderAction will set the sender action (typing, read, not typing) for a given psid
+// Official documentation can be found here: https://developers.facebook.com/docs/messenger-platform/reference/send-api/
 func (m *MessengerAPI) SenderAction(recipient *User, action string) (*interface{}, error) {
 	body := map[string]interface{}{
 		"recipient":     recipient,
@@ -88,6 +101,7 @@ func (m *MessengerAPI) SenderAction(recipient *User, action string) (*interface{
 	}
 }
 
+// UserInfo will load information on a given psid
 func (m *MessengerAPI) UserInfo(psid string) (*interface{}, error) {
 	resp, err := m.http.Get(fmt.Sprintf("https://graph.facebook.com/%s?access_token=%s", psid, m.accessToken))
 	if err != nil {

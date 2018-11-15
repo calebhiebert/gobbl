@@ -11,13 +11,13 @@ type ConsoleIntegration struct {
 
 func (ci *ConsoleIntegration) GenericRequest(c *Context) (*GenericRequest, error) {
 	genericRequest := GenericRequest{
-		Text: (*c.RawRequest).(string),
+		Text: c.RawRequest.(string),
 	}
 
 	return &genericRequest, nil
 }
 
-func (ci *ConsoleIntegration) User(c *Context) (*User, error) {
+func (ci *ConsoleIntegration) User(c *Context) (User, error) {
 	user := User{
 		ID:        "consoleid",
 		FirstName: "John",
@@ -25,7 +25,7 @@ func (ci *ConsoleIntegration) User(c *Context) (*User, error) {
 		Email:     "john.smith@dummymail.com",
 	}
 
-	return &user, nil
+	return user, nil
 }
 
 func (ci *ConsoleIntegration) Respond(c *Context) (*interface{}, error) {
