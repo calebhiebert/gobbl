@@ -42,8 +42,8 @@ func New(endpoint string) (*LUIS, error) {
 	return &config, nil
 }
 
-func LUISMiddleware(endpoint string) cpn.MiddlewareFunction {
-	return func(c *cpn.Context) error {
+func LUISMiddleware(endpoint string) gbl.MiddlewareFunction {
+	return func(c *gbl.Context) error {
 		return nil
 	}
 }

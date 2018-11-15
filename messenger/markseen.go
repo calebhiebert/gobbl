@@ -10,8 +10,8 @@ package fb
 
 import ".."
 
-func MarkSeenMiddleware() cpn.MiddlewareFunction {
-	return func(c *cpn.Context) error {
+func MarkSeenMiddleware() gbl.MiddlewareFunction {
+	return func(c *gbl.Context) error {
 		if c.User.ID != "" {
 			_, _ = c.Integration.(*MessengerIntegration).API.SenderAction(&User{
 				ID: c.User.ID,

@@ -19,7 +19,7 @@ type MBResponse struct {
 }
 
 // CreateResponse will return a pre-populated messenger response object and add it to the context
-func CreateResponse(c *cpn.Context) *MBResponse {
+func CreateResponse(c *gbl.Context) *MBResponse {
 	r := &MBResponse{
 		Messages:      []OutgoingMessage{},
 		QuickReplies:  []QuickReply{},

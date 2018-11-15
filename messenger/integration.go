@@ -4,7 +4,7 @@
 	This file contains the integration for Facebook Messenger
 */
 
-// Package fb impliments a cpn-hook integration for Facebook Messenger
+// Package fb impliments a -ho-hook integration for Facebook Messenger
 package fb
 
 import (
@@ -20,7 +20,7 @@ import (
 
 type MessengerIntegration struct {
 	API         *MessengerAPI
-	Bot         *cpn.Bot
+	Bot         *gbl.Bot
 	VerifyToken string
 }
 
@@ -32,8 +32,8 @@ type MessengerIntegration struct {
 // If the event is a referral, it will be the ref property.
 // This method will also sest the fb:eventtype flag on the context, it will be one of the following values:
 // quickreply, message, payload, referral
-func (m *MessengerIntegration) GenericRequest(c *cpn.Context) (cpn.GenericRequest, error) {
-	genericRequest := cpn.GenericRequest{}
+func (m *MessengerIntegration) GenericRequest(c *gbl.Context) (gbl.GenericRequest, error) {
+	genericRequest := gbl.GenericRequest{}
 	fbRequest := c.RawRequest.(MessagingItem)
 
 	// Check for a message id
@@ -72,8 +72,8 @@ func (m *MessengerIntegration) GenericRequest(c *cpn.Context) (cpn.GenericReques
 
 // User will extract a user's psid from a facebook webhook request
 // It will check if the message is an echo, to make sure the correct id is always selected
-func (m *MessengerIntegration) User(c *cpn.Context) (cpn.User, error) {
-	user := cpn.User{}
+func (m *MessengerIntegration) User(c *gbl.Context) (gbl.User, error) {
+	user := gbl.User{}
 
 	fbRequest := c.RawRequest.(MessagingItem)
 
@@ -100,7 +100,7 @@ func (m *MessengerIntegration) User(c *cpn.Context) (cpn.User, error) {
 // If the MinTypingTime slice contains a number of values equal to the number of messages, one value per message will be used
 // If the MinTypingTime slice contains a number of values that is not 0, 1, or the number of messages, an error will be returned
 // The default typing time is set to 1 second
-func (m *MessengerIntegration) Respond(c *cpn.Context) (*interface{}, error) {
+func (m *MessengerIntegration) Respond(c *gbl.Context) (*interface{}, error) {
 	if c.User.ID == "" {
 		return nil, errors.New("Unable to respond, user id missing")
 	}
@@ -215,7 +215,7 @@ func (m *MessengerIntegration) ServeHTTP(rw http.ResponseWriter, req *http.Reque
 		// TODO execute all received messages in parallel with goroutines
 		// Execute each message with the bot
 		for _, message := range messages {
-			inputCtx := cpn.InputContext{
+			inputCtx := gbl.InputContext{
 				RawRequest:  message,
 				Integration: m,
 				Response: &MBResponse{
@@ -237,7 +237,7 @@ func (m *MessengerIntegration) ServeHTTP(rw http.ResponseWriter, req *http.Reque
 }
 
 // Listen will start a server listening for facebook webhook requests
-func (m *MessengerIntegration) Listen(server *http.Server, bot *cpn.Bot) {
+func (m *MessengerIntegration) Listen(server *http.Server, bot *gbl.Bot) {
 
 	server.Handler = m
 	m.Bot = bot

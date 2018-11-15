@@ -1,4 +1,4 @@
-package cpn
+package gbl
 
 func RequestExtractionMiddleware() MiddlewareFunction {
 	return func(c *Context) error {

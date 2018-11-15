@@ -1,4 +1,4 @@
-package cpn
+package gbl
 
 func SessionMiddleware() MiddlewareFunction {
 	return func(c *Context) error {

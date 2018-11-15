@@ -1,4 +1,4 @@
-package cpn
+package gbl
 
 type BasicResponse struct {
 	messages []string

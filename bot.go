@@ -4,8 +4,8 @@
 	This file contains the main bot/middleware implementation
 */
 
-// Package cpn contains some helpers for building a chatbot
-package cpn
+// package gbl contains some helpers for building a chatbot
+package gbl
 
 import (
 	"fmt"

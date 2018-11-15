@@ -4,7 +4,7 @@
 	This file contains some basic router implimentations
 */
 
-package cpn
+package gbl
 
 // INTENT ROUTER
 //
