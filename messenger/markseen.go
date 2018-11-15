@@ -13,9 +13,11 @@ import ".."
 func MarkSeenMiddleware() gbl.MiddlewareFunction {
 	return func(c *gbl.Context) error {
 		if c.User.ID != "" {
-			_, _ = c.Integration.(*MessengerIntegration).API.SenderAction(&User{
-				ID: c.User.ID,
-			}, SenderActionMarkSeen)
+			go func() {
+				_, _ = c.Integration.(*MessengerIntegration).API.SenderAction(&User{
+					ID: c.User.ID,
+				}, SenderActionMarkSeen)
+			}()
 		}
 
 		return c.Next()

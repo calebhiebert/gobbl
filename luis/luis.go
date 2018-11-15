@@ -76,8 +76,6 @@ func LUISMiddleware(luis *LUIS) gbl.MiddlewareFunction {
 			return c.Next()
 		}
 
-		fmt.Printf("LUIS %+v\n", response)
-
 		if response.TopScoringIntent.Intent != "" {
 			c.Flag("intent", response.TopScoringIntent.Intent)
 		}

@@ -135,14 +135,12 @@ func (m *MessengerIntegration) Respond(c *gbl.Context) (*interface{}, error) {
 		}
 
 		// Send the message
-		result, err := m.API.SendMessage(&User{
+		_, err := m.API.SendMessage(&User{
 			ID: c.User.ID,
 		}, MessageTypeResponse, &msg)
 		if err != nil {
 			fmt.Printf("Error while sending message %+v\n", err)
 		}
-
-		fmt.Printf("Sent Message %+v\n", *result)
 	}
 
 	return nil, nil
