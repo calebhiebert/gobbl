@@ -30,7 +30,7 @@ type MessengerIntegration struct {
 // If the event is a quick reply, it will be the quick reply payload.
 // If the event is a postback, it will first try to use the postback payload, but will fall back to the payload title.
 // If the event is a referral, it will be the ref property.
-// This method will also sest the fb:eventtype flag on the context, it will be one of the following values:
+// This method will also set the fb:eventtype flag on the context, it will be one of the following values:
 // quickreply, message, payload, referral
 func (m *MessengerIntegration) GenericRequest(c *gbl.Context) (gbl.GenericRequest, error) {
 	genericRequest := gbl.GenericRequest{}
