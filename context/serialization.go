@@ -14,7 +14,7 @@ func encodeContext(ctx *BotContext) (string, error) {
 func decodeContext(jsonString string) (BotContext, error) {
 	var bctx BotContext
 
-	err := json.Unmarshal([]byte(jsonString), bctx)
+	err := json.Unmarshal([]byte(jsonString), &bctx)
 	if err != nil {
 		return bctx, err
 	}
