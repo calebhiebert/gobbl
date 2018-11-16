@@ -1,5 +1,5 @@
 package gbl
 
-type MiddlewareFunction = func(c *Context) error
+type MiddlewareFunction = func(c *Context)
 
-type NextFunction = func() error
+type NextFunction = func()

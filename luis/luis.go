@@ -64,16 +64,18 @@ func New(endpoint string) (*LUIS, error) {
 
 // LUISMiddleware returns the LUIS middleware that will query luis with the Text property from the generic request
 func LUISMiddleware(luis *LUIS) gbl.MiddlewareFunction {
-	return func(c *gbl.Context) error {
+	return func(c *gbl.Context) {
 
 		if c.Request.Text == "" {
-			return c.Next()
+			c.Next()
+			return
 		}
 
 		response, err := luis.Query(c.Request.Text)
 		if err != nil {
 			fmt.Println(err)
-			return c.Next()
+			c.Next()
+			return
 		}
 
 		if response.TopScoringIntent.Intent != "" {
@@ -82,7 +84,7 @@ func LUISMiddleware(luis *LUIS) gbl.MiddlewareFunction {
 
 		c.Flag("luis", response)
 
-		return c.Next()
+		c.Next()
 	}
 }
 

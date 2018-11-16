@@ -18,7 +18,10 @@ type Context struct {
 	StartedAt   int64
 	Flags       map[string]interface{}
 	Next        NextFunction
+	abortErr    error
 }
+
+type AbortFunction func(error)
 
 // Turns an input context struct into a full context
 func (ic InputContext) Transform(bot *Bot) *Context {
@@ -50,6 +53,10 @@ func (c Context) HasFlag(key string) bool {
 	_, exists := c.Flags[key]
 
 	return exists
+}
+
+func (c *Context) Abort(err error) {
+	c.abortErr = err
 }
 
 func (c Context) GetFlag(key string) interface{} {

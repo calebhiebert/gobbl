@@ -38,10 +38,11 @@ func (b *Bot) Execute(input *InputContext) (*[]Context, error) {
 	preparedContext := input.Transform(b)
 
 	err := b.exec(preparedContext)
-
 	if err != nil {
 		// Danger Danger
 		return nil, err
+	} else if preparedContext.abortErr != nil {
+		return nil, preparedContext.abortErr
 	}
 
 	if preparedContext.AutoRespond {
@@ -61,6 +62,10 @@ func (b *Bot) exec(c *Context) error {
 
 	dispatch = func(i int) error {
 
+		if c.abortErr != nil {
+			return c.abortErr
+		}
+
 		stackPosition = i
 
 		if stackPosition == len(b.middlewares) {
@@ -70,11 +75,12 @@ func (b *Bot) exec(c *Context) error {
 
 		currentMiddleware := b.middlewares[i]
 
-		c.Next = func() error {
-			return dispatch(i + 1)
+		c.Next = func() {
+			dispatch(i + 1)
 		}
 
-		return currentMiddleware(c)
+		currentMiddleware(c)
+		return nil
 	}
 
 	return dispatch(0)

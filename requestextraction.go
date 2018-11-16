@@ -1,15 +1,16 @@
 package gbl
 
 func RequestExtractionMiddleware() MiddlewareFunction {
-	return func(c *Context) error {
+	return func(c *Context) {
 
 		req, err := c.Integration.GenericRequest(c)
 		if err != nil {
-			return err
+			c.Abort(err)
+			return
 		}
 
 		c.Request = req
 
-		return c.Next()
+		c.Next()
 	}
 }

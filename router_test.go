@@ -11,9 +11,7 @@ import "testing"
 func TestIntentRouterAddHandler(t *testing.T) {
 	ir := IntentRouter()
 
-	presetHandler := func(c *Context) error {
-		return nil
-	}
+	presetHandler := func(c *Context) {}
 
 	ir.Intent("test-intent", presetHandler)
 

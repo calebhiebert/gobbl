@@ -44,22 +44,24 @@ func (ci *ConsoleIntegration) Listen(bot *Bot) {
 	var err error
 
 	for input != "exit()" {
-		fmt.Print("> ")
-		input, err = reader.ReadString('\n')
-		if err != nil {
-			panic(err)
-		}
+		func() {
+			fmt.Print("> ")
+			input, err = reader.ReadString('\n')
+			if err != nil {
+				panic(err)
+			}
 
-		inputCtx := InputContext{
-			RawRequest:  strings.TrimSpace(input),
-			Integration: ci,
-			Response:    &BasicResponse{},
-		}
+			inputCtx := InputContext{
+				RawRequest:  strings.TrimSpace(input),
+				Integration: ci,
+				Response:    &BasicResponse{},
+			}
 
-		_, err = bot.Execute(&inputCtx)
-		if err != nil {
-			panic(err)
-		}
+			_, err = bot.Execute(&inputCtx)
+			if err != nil {
+				fmt.Printf("[ERROR] %s\n", err.Error())
+			}
+		}()
 	}
 
 }

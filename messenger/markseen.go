@@ -11,7 +11,7 @@ package fb
 import "github.com/calebhiebert/gobbl"
 
 func MarkSeenMiddleware() gbl.MiddlewareFunction {
-	return func(c *gbl.Context) error {
+	return func(c *gbl.Context) {
 		if c.User.ID != "" {
 			go func() {
 				_, _ = c.Integration.(*MessengerIntegration).API.SenderAction(&User{
@@ -20,6 +20,6 @@ func MarkSeenMiddleware() gbl.MiddlewareFunction {
 			}()
 		}
 
-		return c.Next()
+		c.Next()
 	}
 }

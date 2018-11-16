@@ -7,14 +7,12 @@ import (
 )
 
 func Middleware(store SessionStore) gbl.MiddlewareFunction {
-	return func(c *gbl.Context) error {
+	return func(c *gbl.Context) {
 
 		session, err := store.Get(c.User.ID)
 		if err != nil {
 			if err == ErrSessionNonexistant {
 				session = make(map[string]interface{})
-			} else {
-				return err
 			}
 		}
 
@@ -27,10 +25,8 @@ func Middleware(store SessionStore) gbl.MiddlewareFunction {
 
 		err = store.Update(c.User.ID, &sessionToSave)
 		if err != nil {
-			return err
+			c.Abort(err)
 		}
-
-		return nil
 	}
 }
 

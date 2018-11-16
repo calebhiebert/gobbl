@@ -29,22 +29,21 @@ func (r *RIntentRouter) Intent(intent string, handler MiddlewareFunction) {
 
 // Middleware will return a middleware function that should be added to the bot
 func (r *RIntentRouter) Middleware() MiddlewareFunction {
-	return func(c *Context) error {
+	return func(c *Context) {
 
 		if !c.HasFlag("intent") {
-			return c.Next()
+			c.Next()
+			return
 		}
 
 		intent := c.GetFlag("intent").(string)
 
 		handler, exists := r.handlers[intent]
 		if !exists {
-			return c.Next()
+			c.Next()
 		} else {
 			handler(c)
 		}
-
-		return nil
 	}
 }
 
@@ -80,14 +79,15 @@ func (r *RCustomRouter) Route(customFunc CustomRouterFunction, handler Middlewar
 
 // Middleware will return a middleware function that should be added to the bot
 func (r *RCustomRouter) Middleware() MiddlewareFunction {
-	return func(c *Context) error {
+	return func(c *Context) {
 
 		for _, routerPair := range r.pairs {
 			if routerPair.customFunc(c) {
-				return routerPair.handler(c)
+				routerPair.handler(c)
+				return
 			}
 		}
 
-		return c.Next()
+		c.Next()
 	}
 }

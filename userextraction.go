@@ -1,14 +1,15 @@
 package gbl
 
 func UserExtractionMiddleware() MiddlewareFunction {
-	return func(c *Context) error {
+	return func(c *Context) {
 		user, err := c.Integration.User(c)
 		if err != nil {
-			return err
+			c.Abort(err)
+			return
 		}
 
 		c.User = user
 
-		return c.Next()
+		c.Next()
 	}
 }
