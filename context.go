@@ -45,6 +45,8 @@ func (c Context) Elapsed() int64 {
 /*
 	FLAG METHODS
 */
+
+// Flag adds a flag to the context
 func (c Context) Flag(key string, value interface{}) {
 	c.Flags[key] = value
 }

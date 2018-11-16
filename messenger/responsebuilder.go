@@ -30,3 +30,11 @@ func CreateResponse(c *gbl.Context) *MBResponse {
 
 	return r
 }
+
+func QRText(title string, payload string) QuickReply {
+	return QuickReply{
+		ContentType: "text",
+		Title:       title,
+		Payload:     payload,
+	}
+}

@@ -51,6 +51,8 @@ func (ci *ConsoleIntegration) Listen(bot *Bot) {
 				panic(err)
 			}
 
+			input = strings.TrimSpace(input)
+
 			inputCtx := InputContext{
 				RawRequest:  strings.TrimSpace(input),
 				Integration: ci,

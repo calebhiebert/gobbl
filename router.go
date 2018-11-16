@@ -51,10 +51,10 @@ func (r *RIntentRouter) Middleware() MiddlewareFunction {
 //
 // This router will route to handlers based on a custom function
 type RCustomRouter struct {
-	pairs []CustomRouterPair
+	pairs []customRouterPair
 }
 
-type CustomRouterPair struct {
+type customRouterPair struct {
 	customFunc CustomRouterFunction
 	handler    MiddlewareFunction
 }
@@ -63,7 +63,7 @@ type CustomRouterFunction func(c *Context) bool
 // CustomRouter will create and return a new custom router
 func CustomRouter() *RCustomRouter {
 	r := RCustomRouter{
-		pairs: []CustomRouterPair{},
+		pairs: []customRouterPair{},
 	}
 
 	return &r
@@ -71,7 +71,7 @@ func CustomRouter() *RCustomRouter {
 
 // Route will add a new intent and handler pair to this router
 func (r *RCustomRouter) Route(customFunc CustomRouterFunction, handler MiddlewareFunction) {
-	r.pairs = append(r.pairs, CustomRouterPair{
+	r.pairs = append(r.pairs, customRouterPair{
 		customFunc: customFunc,
 		handler:    handler,
 	})
