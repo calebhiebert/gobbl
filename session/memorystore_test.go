@@ -1,9 +1,9 @@
-package gbl
+package sess
 
 import "testing"
 
 func TestGet(t *testing.T) {
-	var sess SessionStore = CreateMemoryStore()
+	var sess SessionStore = MemoryStore()
 
 	_, err := sess.Get("dummy-id")
 	if err != ErrSessionNonexistant {
@@ -12,7 +12,7 @@ func TestGet(t *testing.T) {
 }
 
 func TestCreate(t *testing.T) {
-	var sess SessionStore = CreateMemoryStore()
+	var sess SessionStore = MemoryStore()
 
 	testData := map[string]interface{}{
 		"test-data": "Wow",
@@ -28,7 +28,7 @@ func TestCreate(t *testing.T) {
 		t.Error("Received error on session retrieval")
 	}
 
-	s := *session
+	s := session
 
 	if s["test-data"] != "Wow" {
 		t.Errorf("Session Data incorrect, got: %s, want: %s", s["test-data"], "Wow")
@@ -36,7 +36,7 @@ func TestCreate(t *testing.T) {
 }
 
 func TestUpdate(t *testing.T) {
-	var sess SessionStore = CreateMemoryStore()
+	var sess SessionStore = MemoryStore()
 
 	testData := map[string]interface{}{
 		"persistent_data":   "pickles",
@@ -62,7 +62,7 @@ func TestUpdate(t *testing.T) {
 		t.Error("Received error on session retrieval")
 	}
 
-	s := *session
+	s := session
 
 	if s["to_be_overwritten"] != "definitely pickles" {
 		t.Errorf("Improper update, expected: %s, got: %s", "definitely pickles", s["to_be_overwritten"])
@@ -74,7 +74,7 @@ func TestUpdate(t *testing.T) {
 }
 
 func TestUpdateCreate(t *testing.T) {
-	var sess SessionStore = CreateMemoryStore()
+	var sess SessionStore = MemoryStore()
 
 	testData := map[string]interface{}{
 		"test-data": "Wow",
@@ -94,7 +94,7 @@ func TestUpdateCreate(t *testing.T) {
 		return
 	}
 
-	s := *session
+	s := session
 
 	if s["test-data"] != "Wow" {
 		t.Errorf("Session Data incorrect, got: %s, want: %s", s["test-data"], "Wow")
@@ -102,7 +102,7 @@ func TestUpdateCreate(t *testing.T) {
 }
 
 func TestDestroy(t *testing.T) {
-	var sess SessionStore = CreateMemoryStore()
+	var sess SessionStore = MemoryStore()
 
 	testData := map[string]interface{}{
 		"test-data": "Wow",

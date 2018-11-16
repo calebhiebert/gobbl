@@ -7,7 +7,7 @@ import (
 func TestAddingMiddleware(t *testing.T) {
 	bot := New()
 
-	middleware := func(c *Context, next NextFunction) error {
+	middleware := func(c *Context) error {
 		return nil
 	}
 

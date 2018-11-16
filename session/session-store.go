@@ -1,4 +1,4 @@
-package gbl
+package sess
 
 type SessionStore interface {
 
@@ -19,7 +19,7 @@ type SessionStore interface {
 		Returns an existing session
 		Returns a ErrSessionNonexistant error if the session does not exist
 	*/
-	Get(id string) (*map[string]interface{}, error)
+	Get(id string) (map[string]interface{}, error)
 
 	/*
 		Destroys an existing session

@@ -1,34 +1,34 @@
-package gbl
+package sess
 
 import "errors"
 
-type MemoryStore struct {
+type memoryStore struct {
 	sessions map[string]map[string]interface{}
 }
 
 var ErrSessionNonexistant = errors.New("Session did not exist")
 
-func CreateMemoryStore() MemoryStore {
-	ms := MemoryStore{}
+func MemoryStore() memoryStore {
+	ms := memoryStore{}
 	ms.sessions = make(map[string]map[string]interface{})
 	return ms
 }
 
-func (m MemoryStore) Create(id string, data *map[string]interface{}) error {
+func (m memoryStore) Create(id string, data *map[string]interface{}) error {
 	m.sessions[id] = *data
 	return nil
 }
 
-func (m MemoryStore) Get(id string) (*map[string]interface{}, error) {
+func (m memoryStore) Get(id string) (map[string]interface{}, error) {
 	session, ok := m.sessions[id]
 	if !ok {
 		return nil, ErrSessionNonexistant
 	}
 
-	return &session, nil
+	return session, nil
 }
 
-func (m MemoryStore) Update(id string, data *map[string]interface{}) error {
+func (m memoryStore) Update(id string, data *map[string]interface{}) error {
 
 	existingSession, err := m.Get(id)
 	if err != nil {
@@ -43,7 +43,7 @@ func (m MemoryStore) Update(id string, data *map[string]interface{}) error {
 		newSession := make(map[string]interface{})
 
 		// Insert all the old session variables into the new session map
-		for k, v := range *existingSession {
+		for k, v := range existingSession {
 			newSession[k] = v
 		}
 
@@ -60,7 +60,7 @@ func (m MemoryStore) Update(id string, data *map[string]interface{}) error {
 
 }
 
-func (m MemoryStore) Destroy(id string) error {
+func (m memoryStore) Destroy(id string) error {
 	delete(m.sessions, id)
 	return nil
 }

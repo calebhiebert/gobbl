@@ -30,6 +30,7 @@ func (r *RIntentRouter) Intent(intent string, handler MiddlewareFunction) {
 // Middleware will return a middleware function that should be added to the bot
 func (r *RIntentRouter) Middleware() MiddlewareFunction {
 	return func(c *Context) error {
+
 		if !c.HasFlag("intent") {
 			return c.Next()
 		}
