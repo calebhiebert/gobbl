@@ -32,8 +32,6 @@ func main() {
 
 		// Add a text message to the output
 		basicResponse.Text(fmt.Sprintf("Echo: %s", c.Request.Text))
-
-		return nil
 	})
 
 	// Create a new console integration
