@@ -24,7 +24,7 @@ func main() {
 	bot.Use(gbl.RequestExtractionMiddleware())
 
 	// Add a simple middleware that will send an echo response
-	bot.Use(func(c *gbl.Context) error {
+	bot.Use(func(c *gbl.Context) {
 
 		// When using the console integration, the context R (response) object
 		// we need to cast it so we can use it's functions
