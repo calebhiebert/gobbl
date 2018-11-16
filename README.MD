@@ -4,6 +4,12 @@ GOBBL stands for **Go Bot Building Library**. It is a quick and easy way to get 
 
 ## Get Started
 
+First, install the library
+
+```bash
+go get -u github.com/calebhiebert/gobbl
+```
+
 Here is the code for a simple echo bot
 
 ```go
@@ -36,9 +42,11 @@ func main() {
 	// Start listening to the console input
 	ci.Listen(bot)
 }
-
-
 ```
+
+## More Information
+
+For more documentation check out the [Wiki](https://github.com/calebhiebert/gobbl/wiki)
 
 ### Integrations
 
