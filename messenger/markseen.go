@@ -8,7 +8,7 @@
 */
 package fb
 
-import ".."
+import "github.com/calebhiebert/gobbl"
 
 func MarkSeenMiddleware() gbl.MiddlewareFunction {
 	return func(c *gbl.Context) error {

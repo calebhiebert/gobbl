@@ -9,7 +9,7 @@ package fb
 import (
 	"time"
 
-	".."
+	"github.com/calebhiebert/gobbl"
 )
 
 type MBResponse struct {

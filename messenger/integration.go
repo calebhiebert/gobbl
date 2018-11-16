@@ -15,7 +15,7 @@ import (
 	"net/http"
 	"time"
 
-	".."
+	"github.com/calebhiebert/gobbl"
 )
 
 type MessengerIntegration struct {

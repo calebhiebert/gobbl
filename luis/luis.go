@@ -17,7 +17,7 @@ import (
 	"net/url"
 	"time"
 
-	".."
+	"github.com/calebhiebert/gobbl"
 )
 
 type LUIS struct {
