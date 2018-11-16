@@ -31,7 +31,7 @@ type MessengerIntegration struct {
 // If the event is a postback, it will first try to use the postback payload, but will fall back to the payload title.
 // If the event is a referral, it will be the ref property.
 // This method will also set the fb:eventtype flag on the context, it will be one of the following values:
-// quickreply, message, payload, referral
+// quickreply, message, payload, referral, coordinates, attachment
 func (m *MessengerIntegration) GenericRequest(c *gbl.Context) (gbl.GenericRequest, error) {
 	genericRequest := gbl.GenericRequest{}
 	fbRequest := c.RawRequest.(MessagingItem)
@@ -43,9 +43,25 @@ func (m *MessengerIntegration) GenericRequest(c *gbl.Context) (gbl.GenericReques
 		if fbRequest.Message.QuickReply.Payload != "" {
 			genericRequest.Text = fbRequest.Message.QuickReply.Payload
 			c.Flag("fb:eventtype", "quickreply")
-		} else {
+
+			// Check for message text
+		} else if fbRequest.Message.Text != "" {
 			genericRequest.Text = fbRequest.Message.Text
 			c.Flag("fb:eventtype", "message")
+
+			// Check for coordinates
+		} else if len(fbRequest.Message.Attachments) > 0 && fbRequest.Message.Attachments[0].Payload.Coordinates.Lat != 0 {
+			genericRequest.Text = fmt.Sprintf("COORDS LAT %f LONG %f",
+				fbRequest.Message.Attachments[0].Payload.Coordinates.Lat,
+				fbRequest.Message.Attachments[0].Payload.Coordinates.Long)
+			c.Flag("fb:eventtype", "coordinates")
+			c.Flag("fb:location", fbRequest.Message.Attachments[0].Payload.Coordinates)
+
+			// Check for an attachment
+		} else if len(fbRequest.Message.Attachments) > 0 && fbRequest.Message.Attachments[0].Payload.URL != "" {
+			genericRequest.Text = fbRequest.Message.Attachments[0].Payload.URL
+			c.Flag("fb:eventtype", "attachment")
+			c.Flag("fb:attachmenturl", fbRequest.Message.Attachments[0].Payload.URL)
 		}
 
 		// Check for a postback title

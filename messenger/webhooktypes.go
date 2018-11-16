@@ -58,10 +58,12 @@ type WHAttachment struct {
 	URL     string `json:"url"`
 	Type    string `json:"type"`
 	Payload struct {
-		URL         string `json:"url"`
-		Coordinates struct {
-			Lat  float64 `json:"lat"`
-			Long float64 `json:"long"`
-		} `json:"coordinates"`
+		URL         string        `json:"url"`
+		Coordinates WHCoordinates `json:"coordinates"`
 	} `json:"payload"`
+}
+
+type WHCoordinates struct {
+	Lat  float64 `json:"lat"`
+	Long float64 `json:"long"`
 }
