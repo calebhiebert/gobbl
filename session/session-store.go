@@ -10,7 +10,7 @@ type SessionStore interface {
 
 	/*
 		Updates an existing session
-		Update should only overwrite existing values, not remove old ones
+		Update should completely overwrite the old session value
 		A session should be created if it does not exist
 	*/
 	Update(id string, data *map[string]interface{}) error

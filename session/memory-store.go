@@ -29,35 +29,7 @@ func (m memoryStore) Get(id string) (map[string]interface{}, error) {
 }
 
 func (m memoryStore) Update(id string, data *map[string]interface{}) error {
-
-	existingSession, err := m.Get(id)
-	if err != nil {
-		if err == ErrSessionNonexistant {
-			return m.Create(id, data)
-		} else {
-			return err
-		}
-	}
-
-	if existingSession != nil {
-		newSession := make(map[string]interface{})
-
-		// Insert all the old session variables into the new session map
-		for k, v := range existingSession {
-			newSession[k] = v
-		}
-
-		// Insert all the new session variables into the new session map
-		for k, v := range *data {
-			newSession[k] = v
-		}
-
-		m.sessions[id] = newSession
-
-	}
-
-	return nil
-
+	return m.Create(id, data)
 }
 
 func (m memoryStore) Destroy(id string) error {

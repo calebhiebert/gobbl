@@ -20,10 +20,8 @@ func Middleware(store SessionStore) gbl.MiddlewareFunction {
 
 		populateSessionFlags(c, session)
 
-		err = c.Next()
-		if err != nil {
-			return err
-		}
+		// Wait for the request to finish
+		c.Next()
 
 		sessionToSave := readSessionFlags(c)
 
@@ -48,7 +46,7 @@ func readSessionFlags(c *gbl.Context) map[string]interface{} {
 
 	for k, v := range c.Flags {
 		if strings.HasPrefix(k, "sess:") {
-			flags[k] = v
+			flags[k[5:]] = v
 		}
 	}
 

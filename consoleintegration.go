@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strings"
 )
 
 type ConsoleIntegration struct {
@@ -50,7 +51,7 @@ func (ci *ConsoleIntegration) Listen(bot *Bot) {
 		}
 
 		inputCtx := InputContext{
-			RawRequest:  input,
+			RawRequest:  strings.TrimSpace(input),
 			Integration: ci,
 			Response:    &BasicResponse{},
 		}

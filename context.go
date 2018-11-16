@@ -64,6 +64,42 @@ func (c Context) GetInt8Flag(key string) int8 {
 	return c.Flags[key].(int8)
 }
 
+func (c Context) GetInt16Flag(key string) int16 {
+	return c.Flags[key].(int16)
+}
+
+func (c Context) GetInt32Flag(key string) int32 {
+	return c.Flags[key].(int32)
+}
+
+func (c Context) GetInt64Flag(key string) int64 {
+	return c.Flags[key].(int64)
+}
+
+func (c Context) GetStringFlag(key string) string {
+	return c.Flags[key].(string)
+}
+
+func (c Context) GetBoolFlag(key string) bool {
+	return c.Flags[key].(bool)
+}
+
+func (c Context) GetFloat64Flag(key string) float64 {
+	return c.Flags[key].(float64)
+}
+
+func (c Context) GetTimeFlag(key string) time.Time {
+	return c.Flags[key].(time.Time)
+}
+
+func (c Context) GetDurationFlag(key string) time.Duration {
+	return c.Flags[key].(time.Duration)
+}
+
+func (c Context) GetStringSliceFlag(key string) []string {
+	return c.Flags[key].([]string)
+}
+
 func (c Context) ClearFlag(key string) {
 	delete(c.Flags, key)
 }

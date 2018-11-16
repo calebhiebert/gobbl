@@ -39,7 +39,7 @@ func TestUpdate(t *testing.T) {
 	var sess SessionStore = MemoryStore()
 
 	testData := map[string]interface{}{
-		"persistent_data":   "pickles",
+		"to_be_deleted":     "pickles",
 		"to_be_overwritten": "not pickles",
 	}
 
@@ -68,8 +68,8 @@ func TestUpdate(t *testing.T) {
 		t.Errorf("Improper update, expected: %s, got: %s", "definitely pickles", s["to_be_overwritten"])
 	}
 
-	if s["persistent_data"] != "pickles" {
-		t.Errorf("Update not leaving old values intact, wanted: %s, got: %s", "pickles", s["persistent_data"])
+	if _, exists := s["persistent_data"]; exists == true {
+		t.Error("Update is not removing old values")
 	}
 }
 
