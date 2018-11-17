@@ -47,7 +47,7 @@ func Middleware() gbl.MiddlewareFunction {
 				contextEntry.CurrentLifetime--
 			}
 
-			if contextEntry.CurrentLifetime > 0 {
+			if contextEntry.CurrentLifetime > 0 || contextEntry.CurrentLifetime == -1 {
 				liveContexts[name] = contextEntry
 			}
 		}
