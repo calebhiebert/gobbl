@@ -5,7 +5,8 @@ import (
 )
 
 type RContextIntentRouter struct {
-	handlers map[string][]ContextRouterQuery
+	handlers  map[string][]ContextRouterQuery
+	fallbacks []ContextRouterQuery
 }
 
 type ContextRouterQuery struct {
@@ -22,7 +23,8 @@ type C []string
 
 func ContextIntentRouter() *RContextIntentRouter {
 	return &RContextIntentRouter{
-		handlers: make(map[string][]ContextRouterQuery),
+		handlers:  make(map[string][]ContextRouterQuery),
+		fallbacks: make([]ContextRouterQuery, 0),
 	}
 }
 
@@ -42,6 +44,20 @@ func (cr *RContextIntentRouter) NoContext(intents I, handler gbl.MiddlewareFunct
 			handler:   handler,
 		})
 	}
+}
+
+func (cr *RContextIntentRouter) FallbackAny(contexts C, handler gbl.MiddlewareFunction) {
+	cr.fallbacks = append(cr.fallbacks, ContextRouterQuery{
+		handler: handler,
+		any:     contexts,
+	})
+}
+
+func (cr *RContextIntentRouter) FallbackAll(contexts C, handler gbl.MiddlewareFunction) {
+	cr.fallbacks = append(cr.fallbacks, ContextRouterQuery{
+		handler: handler,
+		all:     contexts,
+	})
 }
 
 func (cr *RContextIntentRouter) Any(intents I, contexts C, handler gbl.MiddlewareFunction) {
@@ -114,6 +130,16 @@ func (cr *RContextIntentRouter) Middleware() gbl.MiddlewareFunction {
 						return
 					} else if query.any != nil && hasAnyContexts(botContext, query.any) {
 						query.handler(c)
+						return
+					}
+				}
+			} else {
+				for _, fallback := range cr.fallbacks {
+					if fallback.all != nil && hasAllContexts(botContext, fallback.all) {
+						fallback.handler(c)
+						return
+					} else if fallback.any != nil && hasAnyContexts(botContext, fallback.any) {
+						fallback.handler(c)
 						return
 					}
 				}

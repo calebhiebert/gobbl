@@ -19,10 +19,11 @@ import (
 )
 
 type MessengerIntegration struct {
-	API         *MessengerAPI
-	Bot         *gbl.Bot
-	VerifyToken string
-	DevMode     bool
+	API           *MessengerAPI
+	Bot           *gbl.Bot
+	VerifyToken   string
+	DevMode       bool
+	DisableTyping bool
 }
 
 // GenericRequest extracts a generic request from a facebook webhook request.
@@ -125,49 +126,7 @@ func (m *MessengerIntegration) Respond(c *gbl.Context) (*interface{}, error) {
 
 	response := c.R.(*MBResponse)
 
-	// Append quick replies to the last message if they exist
-	if len(response.QuickReplies) > 0 {
-		response.Messages[len(response.Messages)-1].QuickReplies = response.QuickReplies
-	}
-
-	// Loop through each message and send it
-	for idx, msg := range response.Messages {
-
-		// Check to see if the typing indicator should be set
-		if len(response.MinTypingTime) == 1 || len(response.MinTypingTime) == len(response.Messages) {
-			_, err := m.API.SenderAction(&User{
-				ID: c.User.ID,
-			}, SenderActionTypingOn)
-			if err != nil {
-				fmt.Printf("Error while setting typing %+v\n", err)
-			}
-
-			// Sleep for the appropriate amount of time
-			if len(response.MinTypingTime) == 1 {
-				time.Sleep(response.MinTypingTime[0])
-			} else if len(response.MinTypingTime) == len(response.Messages) {
-				time.Sleep(response.MinTypingTime[idx])
-			}
-		} else if len(response.MinTypingTime) != 0 && len(response.MinTypingTime) != len(response.Messages) {
-			return nil, errors.New("Typing time mismatch")
-		}
-
-		// Send the message
-		_, err := m.API.SendMessage(&User{
-			ID: c.User.ID,
-		}, MessageTypeResponse, &msg)
-		if err != nil {
-			if m.DevMode {
-				m.API.SendMessage(&User{
-					ID: c.User.ID,
-				}, MessageTypeResponse, &OutgoingMessage{
-					Text: fmt.Sprintf("Message Error!\n%+v", err),
-				})
-			}
-
-			fmt.Printf("Error while sending message %+v\n", err)
-		}
-	}
+	m.doResponse(c.User.ID, response)
 
 	return nil, nil
 }
@@ -270,4 +229,53 @@ func (m *MessengerIntegration) Listen(server *http.Server, bot *gbl.Bot) {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
+}
+
+func (m *MessengerIntegration) doResponse(psid string, response *MBResponse) error {
+	// Append quick replies to the last message if they exist
+	if len(response.QuickReplies) > 0 {
+		response.Messages[len(response.Messages)-1].QuickReplies = response.QuickReplies
+	}
+
+	// Loop through each message and send it
+	for idx, msg := range response.Messages {
+
+		// Check to see if the typing indicator should be set
+		if !m.DisableTyping && len(response.MinTypingTime) == 1 || len(response.MinTypingTime) == len(response.Messages) {
+			_, err := m.API.SenderAction(&User{
+				ID: psid,
+			}, SenderActionTypingOn)
+			if err != nil {
+				fmt.Printf("Error while setting typing %+v\n", err)
+			}
+
+			// Sleep for the appropriate amount of time
+			if len(response.MinTypingTime) == 1 {
+				time.Sleep(response.MinTypingTime[0])
+			} else if len(response.MinTypingTime) == len(response.Messages) {
+				time.Sleep(response.MinTypingTime[idx])
+			}
+		} else if !m.DisableTyping && len(response.MinTypingTime) != 0 && len(response.MinTypingTime) != len(response.Messages) {
+			return errors.New("Typing time mismatch")
+		}
+
+		// Send the message
+		_, err := m.API.SendMessage(&User{
+			ID: psid,
+		}, MessageTypeResponse, &msg)
+		if err != nil {
+			if m.DevMode {
+				m.API.SendMessage(&User{
+					ID: psid,
+				}, MessageTypeResponse, &OutgoingMessage{
+					Text: fmt.Sprintf("Message Error!\n%+v", err),
+				})
+			}
+
+			fmt.Printf("Error while sending message %+v\n", err)
+		}
+
+	}
+
+	return nil
 }
