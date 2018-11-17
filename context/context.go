@@ -35,10 +35,19 @@ func Clear(c *gbl.Context, contextName string) {
 	}
 }
 
-func Add(c *gbl.Context, context *BCContext) {
+func Add(c *gbl.Context, name string, lifetime int) {
+	AddSourced(c, name, lifetime, "none")
+}
+
+func AddSourced(c *gbl.Context, name string, lifetime int, source string) {
 	if c.HasFlag("_bctxDecoded") {
 		botContext := c.GetFlag("_bctxDecoded").(*BotContext)
-		botContext.Contexts[context.Name] = *context
+		botContext.Contexts[name] = BCContext{
+			Name:            name,
+			Lifetime:        lifetime,
+			CurrentLifetime: lifetime,
+			Source:          source,
+		}
 	} else {
 		panic("Missing _bctxDecoded!")
 	}
