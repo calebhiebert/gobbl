@@ -43,16 +43,17 @@ type APIError struct {
 }
 
 type OutgoingMessage struct {
-	Text             string       `json:"text"`
-	Metadata         string       `json:"string,omitempty"`
-	QuickReplies     []QuickReply `json:"quick_replies,omitempty"`
-	NotificationType string       `json:"notification_type,omitempty"`
-	Tag              string       `json:"tag,omitempty"`
+	Text             string              `json:"text,omitempty"`
+	Metadata         string              `json:"string,omitempty"`
+	QuickReplies     []QuickReply        `json:"quick_replies,omitempty"`
+	NotificationType string              `json:"notification_type,omitempty"`
+	Attachment       *OutgoingAttachment `json:"attachment,omitempty"`
+	Tag              string              `json:"tag,omitempty"`
 }
 
 type OutgoingAttachment struct {
-	Type    string          `json:"type"`
-	Payload TemplatePayload `json:"payload"`
+	Type    string          `json:"type,omitempty"`
+	Payload TemplatePayload `json:"payload,omitempty"`
 }
 
 type TemplatePayload struct {
@@ -65,19 +66,19 @@ type TemplatePayload struct {
 	ImageAspectRatio string                   `json:"image_aspect_ratio,omitempty"`
 	Text             string                   `json:"text,omitempty"`
 	TopElementStyle  string                   `json:"top_element_style,omitempty"`
-	Buttons          []Button                 `json:"buttons"`
+	Buttons          []Button                 `json:"buttons,omitempty"`
 }
 
 type GenericTemplateElement struct {
-	Title         string        `json:"title"`
+	Title         string        `json:"title,omitempty"`
 	Subtitle      string        `json:"subtitle,omitempty"`
 	ImageURL      string        `json:"image_url,omitempty"`
 	DefaultAction DefaultAction `json:"default_action,omitempty"`
-	Buttons       []Button      `json:"buttons"`
+	Buttons       []Button      `json:"buttons,omitempty"`
 }
 
 type Button struct {
-	Type    string `json:"type"`
+	Type    string `json:"type,omitempty"`
 	URL     string `json:"url,omitempty"`
 	Title   string `json:"title,omitempty"`
 	Payload string `json:"payload,omitempty"`

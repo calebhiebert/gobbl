@@ -11,6 +11,7 @@ type RContextIntentRouter struct {
 type ContextRouterQuery struct {
 	matcherFunc ContextMatcherFunc
 	intentOnly  bool
+	noContext   bool
 	any         C
 	all         C
 	handler     gbl.MiddlewareFunction
@@ -25,11 +26,20 @@ func ContextIntentRouter() *RContextIntentRouter {
 	}
 }
 
-func (cr *RContextIntentRouter) IntentsOnly(intents []string, handler gbl.MiddlewareFunction) {
+func (cr *RContextIntentRouter) IntentsOnly(intents I, handler gbl.MiddlewareFunction) {
 	for _, intent := range intents {
 		addQueryForIntent(cr, intent, &ContextRouterQuery{
 			intentOnly: true,
 			handler:    handler,
+		})
+	}
+}
+
+func (cr *RContextIntentRouter) NoContext(intents I, handler gbl.MiddlewareFunction) {
+	for _, intent := range intents {
+		addQueryForIntent(cr, intent, &ContextRouterQuery{
+			noContext: true,
+			handler:   handler,
 		})
 	}
 }
@@ -93,7 +103,10 @@ func (cr *RContextIntentRouter) Middleware() gbl.MiddlewareFunction {
 
 			if intentCollection, exists := cr.handlers[intent]; exists {
 				for _, query := range intentCollection {
-					if query.intentOnly {
+					if query.noContext && len(botContext.Contexts) == 0 {
+						query.handler(c)
+						return
+					} else if query.intentOnly {
 						query.handler(c)
 						return
 					} else if query.all != nil && hasAllContexts(botContext, query.all) {

@@ -57,8 +57,6 @@ func (m *MessengerAPI) SendMessage(recipient *User, messageType string, message 
 
 	url := fmt.Sprintf("%s/me/messages?access_token=%s", m.baseURL, m.accessToken)
 
-	fmt.Println("URL", url, "JSON", string(jsonBytes))
-
 	resp, err := m.http.Post(url, "application/json", bytes.NewReader(jsonBytes))
 	if err != nil {
 		return nil, err

@@ -13,7 +13,7 @@ type BotContext struct {
 type BCContext struct {
 	Name            string `json:"n"`
 	Source          string `json:"s"`
-	Lifetime        int    `json:"l"`
+	BirthSequence   int    `json:"bs"`
 	CurrentLifetime int    `json:"cl"`
 }
 
@@ -44,7 +44,7 @@ func AddSourced(c *gbl.Context, name string, lifetime int, source string) {
 		botContext := c.GetFlag("_bctxDecoded").(*BotContext)
 		botContext.Contexts[name] = BCContext{
 			Name:            name,
-			Lifetime:        lifetime,
+			BirthSequence:   botContext.Sequence,
 			CurrentLifetime: lifetime,
 			Source:          source,
 		}

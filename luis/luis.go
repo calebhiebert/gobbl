@@ -15,6 +15,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/calebhiebert/gobbl"
@@ -79,7 +80,7 @@ func LUISMiddleware(luis *LUIS) gbl.MiddlewareFunction {
 		}
 
 		if response.TopScoringIntent.Intent != "" {
-			c.Flag("intent", response.TopScoringIntent.Intent)
+			c.Flag("intent", strings.TrimSpace(response.TopScoringIntent.Intent))
 		}
 
 		c.Flag("luis", response)

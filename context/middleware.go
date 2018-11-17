@@ -43,7 +43,7 @@ func Middleware() gbl.MiddlewareFunction {
 		// Increment context current life time and track living ones
 		for name, contextEntry := range decodedContext.Contexts {
 
-			if contextEntry.CurrentLifetime > 0 {
+			if contextEntry.CurrentLifetime > 0 && contextEntry.BirthSequence != decodedContext.Sequence-1 {
 				contextEntry.CurrentLifetime--
 			}
 

@@ -22,6 +22,7 @@ type MessengerIntegration struct {
 	API         *MessengerAPI
 	Bot         *gbl.Bot
 	VerifyToken string
+	DevMode     bool
 }
 
 // GenericRequest extracts a generic request from a facebook webhook request.
@@ -156,6 +157,14 @@ func (m *MessengerIntegration) Respond(c *gbl.Context) (*interface{}, error) {
 			ID: c.User.ID,
 		}, MessageTypeResponse, &msg)
 		if err != nil {
+			if m.DevMode {
+				m.API.SendMessage(&User{
+					ID: c.User.ID,
+				}, MessageTypeResponse, &OutgoingMessage{
+					Text: fmt.Sprintf("Message Error!\n%+v", err),
+				})
+			}
+
 			fmt.Printf("Error while sending message %+v\n", err)
 		}
 	}

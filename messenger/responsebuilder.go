@@ -36,6 +36,28 @@ func (m *MBResponse) M(om *OutgoingMessage) {
 	m.Messages = append(m.Messages, *om)
 }
 
+func (m *MBResponse) Text(text string) {
+	m.Messages = append(m.Messages, OutgoingMessage{
+		Text: text,
+	})
+}
+
+func (m *MBResponse) Image(url string) {
+	m.Messages = append(m.Messages, OutgoingMessage{
+		Attachment: &OutgoingAttachment{
+			Type: "image",
+			Payload: TemplatePayload{
+				URL:        url,
+				IsReusable: true,
+			},
+		},
+	})
+}
+
+func (m *MBResponse) QR(qr QuickReply) {
+	m.QuickReplies = append(m.QuickReplies, qr)
+}
+
 func QRText(title string, payload string) QuickReply {
 	return QuickReply{
 		ContentType: "text",
