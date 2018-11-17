@@ -91,3 +91,43 @@ func (r *RCustomRouter) Middleware() MiddlewareFunction {
 		c.Next()
 	}
 }
+
+// TEXT ROUTER
+//
+// This router will route to handlers based on the request text
+type RTextRouter struct {
+	handlers map[string]MiddlewareFunction
+}
+
+// IntentRouter will create and return a new intent router
+func TextRouter() *RTextRouter {
+	r := RTextRouter{
+		handlers: make(map[string]MiddlewareFunction),
+	}
+
+	return &r
+}
+
+// Text will add a new text and handler pair to this router
+func (r *RTextRouter) Text(text string, handler MiddlewareFunction) {
+	r.handlers[text] = handler
+}
+
+// Middleware will return a middleware function that should be added to the bot
+func (r *RTextRouter) Middleware() MiddlewareFunction {
+	return func(c *Context) {
+		if c.Request.Text == "" {
+			c.Next()
+			return
+		}
+
+		text := c.Request.Text
+
+		handler, exists := r.handlers[text]
+		if !exists {
+			c.Next()
+		} else {
+			handler(c)
+		}
+	}
+}

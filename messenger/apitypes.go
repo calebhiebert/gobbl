@@ -103,3 +103,31 @@ type MessageSendResponse struct {
 	RecipientID string `json:"recipient_id"`
 	MessageID   string `json:"message_id"`
 }
+
+type MessengerProfile struct {
+	AccountLinkingURL string           `json:"account_linking_url,omitempty"`
+	GetStarted        GetStarted       `json:"get_started,omitempty"`
+	PersistentMenu    []PersistentMenu `json:"persistent_menu,omitempty"`
+}
+
+type GetStarted struct {
+	Payload string `json:"payload"`
+}
+
+type PersistentMenu struct {
+	Locale                string     `json:"locale,omitempty"`
+	ComposerInputDisabled bool       `json:"composer_input_disabled,omitempty"`
+	DisabledSurfaces      []string   `json:"disabled_surfaces,omitempty"`
+	CallToActions         []MenuItem `json:"call_to_actions,omitempty"`
+}
+
+type MenuItem struct {
+	Type               string     `json:"type"`
+	Title              string     `json:"title"`
+	URL                string     `json:"url,omitempty"`
+	Payload            string     `json:"payload,omitempty"`
+	CallToActions      []MenuItem `json:"call_to_actions,omitempty"`
+	WebviewHeightRatio string     `json:"webview_height_ratio,omitempty"`
+	FallbackURL        string     `json:"fallback_url,omitempty"`
+	WebviewShareButton string     `json:"webview_share_button,omitempty"`
+}

@@ -8,15 +8,22 @@
 */
 package fb
 
-import "github.com/calebhiebert/gobbl"
+import (
+	"fmt"
+
+	"github.com/calebhiebert/gobbl"
+)
 
 func MarkSeenMiddleware() gbl.MiddlewareFunction {
 	return func(c *gbl.Context) {
 		if c.User.ID != "" {
 			go func() {
-				_, _ = c.Integration.(*MessengerIntegration).API.SenderAction(&User{
+				_, err := c.Integration.(*MessengerIntegration).API.SenderAction(&User{
 					ID: c.User.ID,
 				}, SenderActionMarkSeen)
+				if err != nil {
+					fmt.Println("SET TYPING ERR", err)
+				}
 			}()
 		}
 

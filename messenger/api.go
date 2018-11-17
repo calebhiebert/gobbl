@@ -14,6 +14,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -27,7 +28,7 @@ type MessengerAPI struct {
 // This will create an internal http client with a timeout set to 6 seconds
 func CreateMessengerAPI(accessToken string) *MessengerAPI {
 	mapi := MessengerAPI{
-		accessToken: accessToken,
+		accessToken: strings.TrimSpace(accessToken),
 		baseURL:     "https://graph.facebook.com/v2.6",
 	}
 
@@ -41,7 +42,7 @@ func CreateMessengerAPI(accessToken string) *MessengerAPI {
 // SendMessage will send a messenger message.
 // An error will be returned if Facebook returns a non 2xx status code.
 // Official documentation can be found here: https://developers.facebook.com/docs/messenger-platform/reference/send-api/
-func (m *MessengerAPI) SendMessage(recipient *User, messageType string, message *OutgoingMessage) (*interface{}, error) {
+func (m *MessengerAPI) SendMessage(recipient *User, messageType string, message *OutgoingMessage) (interface{}, error) {
 
 	body := map[string]interface{}{
 		"messaging_type": messageType,
@@ -54,7 +55,11 @@ func (m *MessengerAPI) SendMessage(recipient *User, messageType string, message 
 		return nil, err
 	}
 
-	resp, err := m.http.Post(fmt.Sprintf("%s/me/messages?access_token=%s", m.baseURL, m.accessToken), "application/json", bytes.NewReader(jsonBytes))
+	url := fmt.Sprintf("%s/me/messages?access_token=%s", m.baseURL, m.accessToken)
+
+	fmt.Println("URL", url, "JSON", string(jsonBytes))
+
+	resp, err := m.http.Post(url, "application/json", bytes.NewReader(jsonBytes))
 	if err != nil {
 		return nil, err
 	}
@@ -67,13 +72,13 @@ func (m *MessengerAPI) SendMessage(recipient *User, messageType string, message 
 	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
 		return responseBody, nil
 	} else {
-		return nil, errors.New(fmt.Sprintf("%+v", *responseBody))
+		return nil, errors.New(fmt.Sprintf("%+v", responseBody))
 	}
 }
 
 // SenderAction will set the sender action (typing, read, not typing) for a given psid
 // Official documentation can be found here: https://developers.facebook.com/docs/messenger-platform/reference/send-api/
-func (m *MessengerAPI) SenderAction(recipient *User, action string) (*interface{}, error) {
+func (m *MessengerAPI) SenderAction(recipient *User, action string) (interface{}, error) {
 	body := map[string]interface{}{
 		"recipient":     recipient,
 		"sender_action": action,
@@ -97,12 +102,12 @@ func (m *MessengerAPI) SenderAction(recipient *User, action string) (*interface{
 	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
 		return responseBody, nil
 	} else {
-		return nil, errors.New(fmt.Sprintf("%+v", *responseBody))
+		return nil, errors.New(fmt.Sprintf("%+v", responseBody))
 	}
 }
 
 // UserInfo will load information on a given psid
-func (m *MessengerAPI) UserInfo(psid string) (*interface{}, error) {
+func (m *MessengerAPI) UserInfo(psid string) (interface{}, error) {
 	resp, err := m.http.Get(fmt.Sprintf("https://graph.facebook.com/%s?access_token=%s", psid, m.accessToken))
 	if err != nil {
 		return nil, err
@@ -117,12 +122,37 @@ func (m *MessengerAPI) UserInfo(psid string) (*interface{}, error) {
 		return body, nil
 	} else {
 
-		return nil, mapError(*body)
+		return nil, mapError(body)
+	}
+}
+
+func (m *MessengerAPI) MessengerProfile(profile *MessengerProfile) (interface{}, error) {
+	jsonBytes, err := json.Marshal(profile)
+	if err != nil {
+		return nil, err
+	}
+
+	url := fmt.Sprintf("%s/me/messenger_profile?access_token=%s", m.baseURL, m.accessToken)
+
+	resp, err := m.http.Post(url, "application/json", bytes.NewReader(jsonBytes))
+	if err != nil {
+		return nil, err
+	}
+
+	responseBody, err := readBodyJson(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+		return responseBody, nil
+	} else {
+		return nil, errors.New(fmt.Sprintf("%+v", responseBody))
 	}
 }
 
 // Reads a http response body and parses the json into an interface
-func readBodyJson(body io.ReadCloser) (*interface{}, error) {
+func readBodyJson(body io.ReadCloser) (interface{}, error) {
 	defer body.Close()
 
 	bytes, err := ioutil.ReadAll(body)
@@ -134,10 +164,10 @@ func readBodyJson(body io.ReadCloser) (*interface{}, error) {
 
 	err = json.Unmarshal(bytes, &bodyJson)
 	if err != nil {
-		return nil, err
+		return string(bytes), nil
 	}
 
-	return &bodyJson, nil
+	return bodyJson, nil
 }
 
 func mapError(err interface{}) APIError {

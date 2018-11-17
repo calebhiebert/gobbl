@@ -31,6 +31,11 @@ func CreateResponse(c *gbl.Context) *MBResponse {
 	return r
 }
 
+// M adds a new message to the response and returns it
+func (m *MBResponse) M(om *OutgoingMessage) {
+	m.Messages = append(m.Messages, *om)
+}
+
 func QRText(title string, payload string) QuickReply {
 	return QuickReply{
 		ContentType: "text",
