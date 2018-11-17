@@ -109,6 +109,8 @@ func (c Context) GetStringSliceFlag(key string) []string {
 	return c.Flags[key].([]string)
 }
 
-func (c Context) ClearFlag(key string) {
-	delete(c.Flags, key)
+func (c Context) ClearFlag(key ...string) {
+	for _, k := range key {
+		delete(c.Flags, k)
+	}
 }

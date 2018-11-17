@@ -8,6 +8,7 @@ package fb
 
 import (
 	"errors"
+	"math/rand"
 	"time"
 
 	"github.com/calebhiebert/gobbl"
@@ -71,6 +72,12 @@ func (m *MBResponse) M(om *OutgoingMessage) {
 func (m *MBResponse) Text(text string) {
 	m.Messages = append(m.Messages, OutgoingMessage{
 		Text: text,
+	})
+}
+
+func (m *MBResponse) RandomText(text ...string) {
+	m.Messages = append(m.Messages, OutgoingMessage{
+		Text: text[rand.Intn(len(text))],
 	})
 }
 
