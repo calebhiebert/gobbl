@@ -1,10 +1,13 @@
 package sess
 
 import (
+	"errors"
 	"strings"
 
 	"github.com/calebhiebert/gobbl"
 )
+
+var ErrSessionNonexistant = errors.New("Session did not exist")
 
 func Middleware(store SessionStore) gbl.MiddlewareFunction {
 	return func(c *gbl.Context) {

@@ -1,12 +1,8 @@
 package sess
 
-import "errors"
-
 type memoryStore struct {
 	sessions map[string]map[string]interface{}
 }
-
-var ErrSessionNonexistant = errors.New("Session did not exist")
 
 func MemoryStore() memoryStore {
 	ms := memoryStore{}
