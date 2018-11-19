@@ -119,10 +119,7 @@ func (cr *RContextIntentRouter) Middleware() gbl.MiddlewareFunction {
 
 			if intentCollection, exists := cr.handlers[intent]; exists {
 				for _, query := range intentCollection {
-					if query.noContext && len(botContext.Contexts) == 0 {
-						query.handler(c)
-						return
-					} else if query.intentOnly {
+					if query.intentOnly {
 						query.handler(c)
 						return
 					} else if query.all != nil && hasAllContexts(botContext, query.all) {
@@ -133,13 +130,22 @@ func (cr *RContextIntentRouter) Middleware() gbl.MiddlewareFunction {
 						return
 					}
 				}
-			} else {
-				for _, fallback := range cr.fallbacks {
-					if fallback.all != nil && hasAllContexts(botContext, fallback.all) {
-						fallback.handler(c)
-						return
-					} else if fallback.any != nil && hasAnyContexts(botContext, fallback.any) {
-						fallback.handler(c)
+			}
+
+			for _, fallback := range cr.fallbacks {
+				if fallback.all != nil && hasAllContexts(botContext, fallback.all) {
+					fallback.handler(c)
+					return
+				} else if fallback.any != nil && hasAnyContexts(botContext, fallback.any) {
+					fallback.handler(c)
+					return
+				}
+			}
+
+			if intentCollection, exists := cr.handlers[intent]; exists {
+				for _, query := range intentCollection {
+					if query.noContext && len(botContext.Contexts) == 0 {
+						query.handler(c)
 						return
 					}
 				}
