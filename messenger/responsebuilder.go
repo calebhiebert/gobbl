@@ -28,15 +28,21 @@ type MBImmediateResponse struct {
 
 // CreateResponse will return a pre-populated messenger response object and add it to the context
 func CreateResponse(c *gbl.Context) *MBResponse {
-	r := &MBResponse{
-		Messages:      []OutgoingMessage{},
-		QuickReplies:  []QuickReply{},
-		MinTypingTime: []time.Duration{time.Second},
+	existingResponse := c.R.(*MBResponse)
+
+	if existingResponse.Messages == nil {
+		existingResponse.Messages = []OutgoingMessage{}
 	}
 
-	c.R = r
+	if existingResponse.QuickReplies == nil {
+		existingResponse.QuickReplies = []QuickReply{}
+	}
 
-	return r
+	if existingResponse.MinTypingTime == nil {
+		existingResponse.MinTypingTime = []time.Duration{time.Second}
+	}
+
+	return existingResponse
 }
 
 // CreateImmediateResponse will create a response object that can be sent manually at any time

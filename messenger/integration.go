@@ -201,11 +201,7 @@ func (m *MessengerIntegration) ServeHTTP(rw http.ResponseWriter, req *http.Reque
 			inputCtx := gbl.InputContext{
 				RawRequest:  message,
 				Integration: m,
-				Response: &MBResponse{
-					Messages:      []OutgoingMessage{},
-					QuickReplies:  []QuickReply{},
-					MinTypingTime: []time.Duration{time.Second},
-				},
+				Response:    &MBResponse{},
 			}
 
 			m.Bot.Execute(&inputCtx)
