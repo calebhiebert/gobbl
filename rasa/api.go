@@ -78,6 +78,8 @@ func Middleware(rasa *API) gbl.MiddlewareFunction {
 			c.Flag("intent", strings.TrimSpace(response.Intent.Name))
 		}
 
+		// TODO Flag with entity results
+
 		c.Flag("rasa", response)
 
 		c.Next()
