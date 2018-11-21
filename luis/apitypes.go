@@ -1,11 +1,7 @@
-/*
-	apitypes.go
-
-	This file contains the types for the LUIS API
-*/
 package luis
 
-type LUISResponse struct {
+// Response represents the json response from a LUIS query request
+type Response struct {
 	Query             string            `json:"query"`
 	TopScoringIntent  Intent            `json:"topScoringIntent"`
 	Intents           []Intent          `json:"intents"`
@@ -13,11 +9,13 @@ type LUISResponse struct {
 	SentimentAnalysis SentimentAnalysis `json:"sentimentAnalysis"`
 }
 
+// Intent represents a matched LUIS intent
 type Intent struct {
 	Intent string  `json:"intent"`
 	Score  float64 `json:"score"`
 }
 
+// Entity represents a LUIS entity
 type Entity struct {
 	Entity     string  `json:"entity"`
 	Type       string  `json:"type"`
@@ -31,6 +29,8 @@ type Entity struct {
 	} `json:"resolution"`
 }
 
+// SentimentAnalysis will show up on LUIS responses
+// if it has been enabled
 type SentimentAnalysis struct {
 	Label string  `json:"string"`
 	Score float64 `json:"score"`

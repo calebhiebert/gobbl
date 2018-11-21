@@ -1,10 +1,10 @@
 /*
-	luis.go
+Package luis is a luis middleware for gobbl
 
-	This file contains methods for accessing the Microsoft LUIS API
-	This middleware will take the c.Request.Text property and use it to query a LUIS endpoint
-	The top scoring intent will be stored in the "intent" flag
-	The entire result body will be stored in the "luis" flag
+This file contains methods for accessing the Microsoft LUIS API
+This middleware will take the c.Request.Text property and use it to query a LUIS endpoint
+The top scoring intent will be stored in the "intent" flag
+The entire result body will be stored in the "luis" flag
 */
 package luis
 
@@ -21,6 +21,7 @@ import (
 	"github.com/calebhiebert/gobbl"
 )
 
+// LUIS is a LUIS api object
 type LUIS struct {
 	client   *http.Client
 	endpoint string
@@ -63,8 +64,8 @@ func New(endpoint string) (*LUIS, error) {
 	return &config, nil
 }
 
-// LUISMiddleware returns the LUIS middleware that will query luis with the Text property from the generic request
-func LUISMiddleware(luis *LUIS) gbl.MiddlewareFunction {
+// Middleware returns the LUIS middleware that will query luis with the Text property from the generic request
+func Middleware(luis *LUIS) gbl.MiddlewareFunction {
 	return func(c *gbl.Context) {
 
 		if c.Request.Text == "" {
@@ -85,12 +86,32 @@ func LUISMiddleware(luis *LUIS) gbl.MiddlewareFunction {
 
 		c.Flag("luis", response)
 
+		entities := make(map[string][]string)
+
+		for _, entity := range response.Entities {
+			if _, ok := entities[entity.Type]; !ok {
+				entities[entity.Type] = []string{}
+			}
+
+			if entity.Resolution.Values != nil {
+				entities[entity.Type] = append(entities[entity.Type], entity.Resolution.Values...)
+			}
+
+			if entity.Resolution.Value != "" {
+				entities[entity.Type] = append(entities[entity.Type], entity.Resolution.Value)
+			}
+		}
+
+		for entityType, entityValues := range entities {
+			c.Flag("luis:e:"+entityType, entityValues)
+		}
+
 		c.Next()
 	}
 }
 
 // Query will make a query against the LUIS api
-func (l LUIS) Query(queryString string) (*LUISResponse, error) {
+func (l LUIS) Query(queryString string) (*Response, error) {
 	resp, err := l.client.Get(l.endpoint + "&q=" + url.QueryEscape(queryString))
 	if err != nil {
 		return nil, err
@@ -111,15 +132,16 @@ func (l LUIS) Query(queryString string) (*LUISResponse, error) {
 			return nil, err
 		}
 
-		return nil, errors.New(fmt.Sprintf("LUIS Error %+v", luisError))
-	} else {
-		luisResponse := &LUISResponse{}
-
-		err = json.Unmarshal(body, luisResponse)
-		if err != nil {
-			return nil, err
-		}
-
-		return luisResponse, nil
+		return nil, fmt.Errorf("LUIS Error %+v", luisError)
 	}
+
+	luisResponse := &Response{}
+
+	err = json.Unmarshal(body, luisResponse)
+	if err != nil {
+		return nil, err
+	}
+
+	return luisResponse, nil
+
 }
