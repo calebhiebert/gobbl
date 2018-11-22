@@ -19,11 +19,12 @@ import (
 )
 
 type MessengerIntegration struct {
-	API           *MessengerAPI
-	Bot           *gbl.Bot
-	VerifyToken   string
-	DevMode       bool
-	DisableTyping bool
+	API            *MessengerAPI
+	Bot            *gbl.Bot
+	VerifyToken    string
+	DevMode        bool
+	DisableTyping  bool
+	EnableRecovery bool
 }
 
 // GenericRequest extracts a generic request from a facebook webhook request.
@@ -133,24 +134,26 @@ func (m *MessengerIntegration) Respond(c *gbl.Context) (*interface{}, error) {
 
 // ServeHTTP is a http request handler that is specifically built for accepting facebook webhook requests
 func (m *MessengerIntegration) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
-	// Recovery function
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Println("Recovered from panic", r)
-			rw.WriteHeader(http.StatusInternalServerError)
+	if m.EnableRecovery {
+		// Recovery function
+		defer func() {
+			if r := recover(); r != nil {
+				fmt.Println("Recovered from panic", r)
+				rw.WriteHeader(http.StatusInternalServerError)
 
-			jsonErr, err := json.Marshal(map[string]interface{}{
-				"error": r,
-			})
-			if err != nil {
-				rw.Write([]byte(fmt.Sprintf("%+v", r)))
+				jsonErr, err := json.Marshal(map[string]interface{}{
+					"error": r,
+				})
+				if err != nil {
+					rw.Write([]byte(fmt.Sprintf("%+v", r)))
+					return
+				}
+
+				rw.Write(jsonErr)
 				return
 			}
-
-			rw.Write(jsonErr)
-			return
-		}
-	}()
+		}()
+	}
 
 	// Check the request method so webhook verification can be completed
 	if req.Method == "GET" {
