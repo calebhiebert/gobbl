@@ -184,6 +184,18 @@ func Carousel(elements ...GenericTemplateElement) TemplatePayload {
 	}
 }
 
+// Element will add one or more elements to a generic template carousel
+// Do not use this mehtod on a non generic template carousel
+func (c *TemplatePayload) Element(elements ...GenericTemplateElement) *TemplatePayload {
+	if c.Elements != nil {
+		c.Elements = append(c.Elements, elements...)
+	} else {
+		c.Elements = elements
+	}
+
+	return c
+}
+
 // ButtonURL creates a facebook URL button
 func ButtonURL(title, url string) Button {
 	return Button{

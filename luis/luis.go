@@ -75,7 +75,7 @@ func Middleware(luis *LUIS) gbl.MiddlewareFunction {
 
 		response, err := luis.Query(c.Request.Text)
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println("LUIS Error", err)
 			c.Next()
 			return
 		}
