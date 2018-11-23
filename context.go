@@ -1,6 +1,12 @@
 package gbl
 
-import "time"
+import (
+	"fmt"
+	"runtime"
+	"time"
+
+	"github.com/matoous/go-nanoid"
+)
 
 type InputContext struct {
 	RawRequest  interface{}
@@ -18,17 +24,24 @@ type Context struct {
 	StartedAt   int64
 	Flags       map[string]interface{}
 	Next        NextFunction
+	Identifier  string
 	abortErr    error
 }
 
 type AbortFunction func(error)
 
-// Turns an input context struct into a full context
+// Transform Turns an input context struct into a full context
 func (ic InputContext) Transform(bot *Bot) *Context {
+	id, err := gonanoid.Nanoid(4)
+	if err != nil {
+		fmt.Println("ID GENERATION ERROR", err)
+	}
+
 	ctx := Context{
 		RawRequest:  ic.RawRequest,
 		Integration: ic.Integration,
 		StartedAt:   time.Now().Unix(),
+		Identifier:  id,
 		R:           ic.Response,
 		AutoRespond: true,
 		Flags:       make(map[string]interface{}),
@@ -37,7 +50,7 @@ func (ic InputContext) Transform(bot *Bot) *Context {
 	return &ctx
 }
 
-// Gets the number of milliseconds since the context was created
+// Elapsed gets the number of milliseconds since the context was created
 func (c Context) Elapsed() int64 {
 	return time.Now().Unix() - c.StartedAt
 }
@@ -113,4 +126,52 @@ func (c Context) ClearFlag(key ...string) {
 	for _, k := range key {
 		delete(c.Flags, k)
 	}
+}
+
+// Log will log a statement to the console
+func (c Context) Log(level, format string, args ...interface{}) {
+	fmt.Printf("[+%dms - %s - %s] %s %s", c.Elapsed(), GetCallingFunction(), c.Identifier, level, fmt.Sprintf(format, args...))
+}
+
+// Info will log a statement at the INFO level
+func (c Context) Info(format string, args ...interface{}) {
+	c.Log("INFO", format, args...)
+}
+
+// Debug will log a statement at the DEBUG level
+func (c Context) Debug(format string, args ...interface{}) {
+	c.Log("DEBUG", format, args...)
+}
+
+// Warn will log a statement at the WARN level
+func (c Context) Warn(format string, args ...interface{}) {
+	c.Log("WARN", format, args...)
+}
+
+// Error will log a statement at the ERROR level
+func (c Context) Error(format string, args ...interface{}) {
+	c.Log("ERROR", format, args...)
+}
+
+// Trace will log a statement at the TRACE level
+func (c Context) Trace(format string, args ...interface{}) {
+	c.Log("TRACE", format, args...)
+}
+
+// GetCallingFunction will return the name of the function that called
+// the function that calls this function
+func GetCallingFunction() string {
+	fpcs := make([]uintptr, 1)
+
+	n := runtime.Callers(4, fpcs)
+	if n == 0 {
+		return "n/a"
+	}
+
+	fun := runtime.FuncForPC(fpcs[0] - 1)
+	if fun == nil {
+		return "n/a"
+	}
+
+	return fun.Name()
 }
