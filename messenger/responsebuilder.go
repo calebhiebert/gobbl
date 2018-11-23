@@ -8,6 +8,7 @@ package fb
 
 import (
 	"errors"
+	"fmt"
 	"math/rand"
 	"time"
 
@@ -71,6 +72,29 @@ func (im *MBImmediateResponse) Send() error {
 	}
 
 	return im.Integration.doResponse(im.Context.User.ID, &im.MBResponse)
+}
+
+// SendThenType will immediately send the messages, and set the bot as typing
+func (im *MBImmediateResponse) SendThenType() error {
+	if im.Context.User.ID == "" {
+		return errors.New("missing user id")
+	}
+
+	err := im.Integration.doResponse(im.Context.User.ID, &im.MBResponse)
+	if err != nil {
+		return err
+	}
+
+	api := im.Context.Integration.(*MessengerIntegration).API
+
+	_, err = api.SenderAction(&User{
+		ID: im.Context.User.ID,
+	}, SenderActionTypingOn)
+	if err != nil {
+		fmt.Printf("Error while setting typing %+v\n", err)
+	}
+
+	return nil
 }
 
 // M adds a new message to the response and returns it
@@ -178,6 +202,13 @@ func ImageCard(title, subtitle, imageURL string) TemplatePayload {
 
 // Carousel will combine multiple image card elements into a carousel
 func Carousel(elements ...GenericTemplateElement) TemplatePayload {
+	if len(elements) == 0 {
+		return TemplatePayload{
+			TemplateType: "generic",
+			Elements:     make([]GenericTemplateElement, 0),
+		}
+	}
+
 	return TemplatePayload{
 		TemplateType: "generic",
 		Elements:     elements,

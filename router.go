@@ -99,7 +99,7 @@ type RTextRouter struct {
 	handlers map[string]MiddlewareFunction
 }
 
-// IntentRouter will create and return a new intent router
+// TextRouter will create and return a new intent router
 func TextRouter() *RTextRouter {
 	r := RTextRouter{
 		handlers: make(map[string]MiddlewareFunction),

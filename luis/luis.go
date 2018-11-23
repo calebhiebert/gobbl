@@ -23,8 +23,9 @@ import (
 
 // LUIS is a LUIS api object
 type LUIS struct {
-	client   *http.Client
-	endpoint string
+	client        *http.Client
+	minConfidence float64
+	endpoint      string
 }
 
 // New creates a new LUIS instance, this stores the endpoint for calling
@@ -55,7 +56,8 @@ func New(endpoint string) (*LUIS, error) {
 	}
 
 	config := LUIS{
-		endpoint: fmt.Sprintf("https://%s%s%s", parsedEndpoint.Host, parsedEndpoint.Path, queryString),
+		endpoint:      fmt.Sprintf("https://%s%s%s", parsedEndpoint.Host, parsedEndpoint.Path, queryString),
+		minConfidence: 0.65,
 		client: &http.Client{
 			Timeout: 6 * time.Second,
 		},
@@ -80,7 +82,7 @@ func Middleware(luis *LUIS) gbl.MiddlewareFunction {
 			return
 		}
 
-		if response.TopScoringIntent.Intent != "" {
+		if response.TopScoringIntent.Intent != "" && response.TopScoringIntent.Score >= luis.minConfidence {
 			c.Flag("intent", strings.TrimSpace(response.TopScoringIntent.Intent))
 		}
 
