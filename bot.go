@@ -1,20 +1,12 @@
-/*
-	bot.go
-
-	This file contains the main bot/middleware implementation
-*/
-
-// package gbl contains some helpers for building a chatbot
+// Package gbl contains some helpers for building a chatbot
 package gbl
 
-import (
-	"fmt"
-)
-
+// Bot is a struct with a collection of middlewares
 type Bot struct {
 	middlewares []MiddlewareFunction
 }
 
+// DispatchFunction is a function used internally to run the middlewares
 type DispatchFunction func(i int) error
 
 // New creates a new bot instance
@@ -34,7 +26,7 @@ func (b *Bot) Use(f MiddlewareFunction) {
 
 // Execute will take the InputContext and generate a full context from it.
 // It will take this full context
-func (b *Bot) Execute(input *InputContext) (*[]Context, error) {
+func (b *Bot) Execute(input *InputContext) (*Context, error) {
 	preparedContext := input.Transform(b)
 
 	err := b.exec(preparedContext)
@@ -45,15 +37,7 @@ func (b *Bot) Execute(input *InputContext) (*[]Context, error) {
 		return nil, preparedContext.abortErr
 	}
 
-	if preparedContext.AutoRespond {
-		_, err := preparedContext.Integration.Respond(preparedContext)
-		if err != nil {
-
-			preparedContext.Error(fmt.Sprintf("Error while auto responding %+v", err))
-		}
-	}
-
-	return &[]Context{*preparedContext}, nil
+	return preparedContext, nil
 }
 
 func (b *Bot) exec(c *Context) error {

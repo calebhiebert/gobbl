@@ -2,11 +2,8 @@ package gbl
 
 import (
 	"fmt"
-	"runtime"
-	"strings"
 	"time"
 
-	. "github.com/logrusorgru/aurora"
 	"github.com/matoous/go-nanoid"
 )
 
@@ -128,72 +125,4 @@ func (c Context) ClearFlag(key ...string) {
 	for _, k := range key {
 		delete(c.Flags, k)
 	}
-}
-
-// Log will log a statement to the console
-func (c Context) Log(level, msg, source string) {
-
-	elapsed := Green(fmt.Sprintf("+%dms", c.Elapsed())).Bold()
-	source = Blue(source).String()
-	id := Magenta(c.Identifier).Bold()
-
-	switch level {
-	case "INFO":
-		level = Blue(level).String()
-	case "DEBUG":
-		level = Cyan(level).String()
-	case "TRACE":
-		level = Gray(level).String()
-	case "WARN":
-		level = Brown(level).String()
-	case "ERROR":
-		level = Red(level).String()
-	}
-
-	fmt.Printf("[%s | %s | %s] %s %s\n", elapsed, source, id, level, msg)
-}
-
-// Info will log a statement at the INFO level
-func (c Context) Info(msg string) {
-	c.Log("INFO", msg, GetCallingFunction())
-}
-
-// Debug will log a statement at the DEBUG level
-func (c Context) Debug(msg string) {
-	c.Log("DEBUG", msg, GetCallingFunction())
-}
-
-// Warn will log a statement at the WARN level
-func (c Context) Warn(msg string) {
-	c.Log("WARN", msg, GetCallingFunction())
-}
-
-// Error will log a statement at the ERROR level
-func (c Context) Error(msg string) {
-	c.Log("ERROR", msg, GetCallingFunction())
-}
-
-// Trace will log a statement at the TRACE level
-func (c Context) Trace(msg string) {
-	c.Log("TRACE", msg, GetCallingFunction())
-}
-
-// GetCallingFunction will return the name of the function that called
-// the function that calls this function
-func GetCallingFunction() string {
-	fpcs := make([]uintptr, 1)
-
-	n := runtime.Callers(3, fpcs)
-	if n == 0 {
-		return "n/a"
-	}
-
-	fun := runtime.FuncForPC(fpcs[0] - 1)
-	if fun == nil {
-		return "n/a"
-	}
-
-	nameParts := strings.Split(fun.Name(), ".")
-
-	return nameParts[len(nameParts)-1]
 }
