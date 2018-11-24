@@ -102,6 +102,10 @@ func Middleware(luis *LUIS) gbl.MiddlewareFunction {
 			if entity.Resolution.Value != "" {
 				entities[entity.Type] = append(entities[entity.Type], entity.Resolution.Value)
 			}
+
+			if len(entities[entity.Type]) == 0 {
+				entities[entity.Type] = append(entities[entity.Type], entity.Entity)
+			}
 		}
 
 		for entityType, entityValues := range entities {
