@@ -1,8 +1,6 @@
 package bctx
 
 import (
-	"fmt"
-
 	"github.com/calebhiebert/gobbl"
 )
 
@@ -118,8 +116,6 @@ func (cr *RContextIntentRouter) Middleware() gbl.MiddlewareFunction {
 				intent := c.GetStringFlag("intent")
 
 				if intentCollection, exists := cr.handlers[intent]; exists {
-					c.Trace("Routing for intent " + intent)
-
 					for _, query := range intentCollection {
 						if query.intentOnly {
 							query.handler(c)
@@ -136,8 +132,6 @@ func (cr *RContextIntentRouter) Middleware() gbl.MiddlewareFunction {
 			}
 
 			for _, fallback := range cr.fallbacks {
-				c.Trace(fmt.Sprintf("Checking against fallback %v", fallback))
-
 				if fallback.all != nil && hasAllContexts(botContext, fallback.all) {
 					fallback.handler(c)
 					return
@@ -151,8 +145,6 @@ func (cr *RContextIntentRouter) Middleware() gbl.MiddlewareFunction {
 				intent := c.GetStringFlag("intent")
 
 				if intentCollection, exists := cr.handlers[intent]; exists && len(botContext.Contexts) == 0 {
-					c.Trace("Routing for no context intent " + intent)
-
 					for _, query := range intentCollection {
 						if query.noContext {
 							query.handler(c)

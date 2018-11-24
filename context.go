@@ -131,10 +131,10 @@ func (c Context) ClearFlag(key ...string) {
 }
 
 // Log will log a statement to the console
-func (c Context) Log(level, msg string) {
+func (c Context) Log(level, msg, source string) {
 
 	elapsed := Green(fmt.Sprintf("+%dms", c.Elapsed())).Bold()
-	source := Blue(GetCallingFunction())
+	source = Blue(source).String()
 	id := Magenta(c.Identifier).Bold()
 
 	switch level {
@@ -155,27 +155,27 @@ func (c Context) Log(level, msg string) {
 
 // Info will log a statement at the INFO level
 func (c Context) Info(msg string) {
-	c.Log("INFO", msg)
+	c.Log("INFO", msg, GetCallingFunction())
 }
 
 // Debug will log a statement at the DEBUG level
 func (c Context) Debug(msg string) {
-	c.Log("DEBUG", msg)
+	c.Log("DEBUG", msg, GetCallingFunction())
 }
 
 // Warn will log a statement at the WARN level
 func (c Context) Warn(msg string) {
-	c.Log("WARN", msg)
+	c.Log("WARN", msg, GetCallingFunction())
 }
 
 // Error will log a statement at the ERROR level
 func (c Context) Error(msg string) {
-	c.Log("ERROR", msg)
+	c.Log("ERROR", msg, GetCallingFunction())
 }
 
 // Trace will log a statement at the TRACE level
 func (c Context) Trace(msg string) {
-	c.Log("TRACE", msg)
+	c.Log("TRACE", msg, GetCallingFunction())
 }
 
 // GetCallingFunction will return the name of the function that called
@@ -183,7 +183,7 @@ func (c Context) Trace(msg string) {
 func GetCallingFunction() string {
 	fpcs := make([]uintptr, 1)
 
-	n := runtime.Callers(4, fpcs)
+	n := runtime.Callers(3, fpcs)
 	if n == 0 {
 		return "n/a"
 	}
