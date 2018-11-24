@@ -39,7 +39,7 @@ func (ic InputContext) Transform(bot *Bot) *Context {
 	ctx := Context{
 		RawRequest:  ic.RawRequest,
 		Integration: ic.Integration,
-		StartedAt:   time.Now().Unix(),
+		StartedAt:   time.Now().UnixNano(),
 		Identifier:  id,
 		R:           ic.Response,
 		AutoRespond: true,
@@ -51,7 +51,7 @@ func (ic InputContext) Transform(bot *Bot) *Context {
 
 // Elapsed gets the number of milliseconds since the context was created
 func (c Context) Elapsed() int64 {
-	return time.Now().Unix() - c.StartedAt
+	return (time.Now().UnixNano() - c.StartedAt) / 1000000
 }
 
 /*
