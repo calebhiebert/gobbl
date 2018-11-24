@@ -48,7 +48,8 @@ func (b *Bot) Execute(input *InputContext) (*[]Context, error) {
 	if preparedContext.AutoRespond {
 		_, err := preparedContext.Integration.Respond(preparedContext)
 		if err != nil {
-			fmt.Printf("Error while auto responding %+v", err)
+
+			preparedContext.Error(fmt.Sprintf("Error while auto responding %+v", err))
 		}
 	}
 

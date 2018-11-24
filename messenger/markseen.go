@@ -14,6 +14,7 @@ import (
 	"github.com/calebhiebert/gobbl"
 )
 
+// MarkSeenMiddleware will mark the current chat as seen by the bot
 func MarkSeenMiddleware() gbl.MiddlewareFunction {
 	return func(c *gbl.Context) {
 		if c.User.ID != "" {
@@ -22,7 +23,7 @@ func MarkSeenMiddleware() gbl.MiddlewareFunction {
 					ID: c.User.ID,
 				}, SenderActionMarkSeen)
 				if err != nil {
-					fmt.Println("SET TYPING ERR", err)
+					c.Error(fmt.Sprintf("Error when setting as seen %v", err))
 				}
 			}()
 		}

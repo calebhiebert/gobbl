@@ -20,7 +20,7 @@ func Middleware() gbl.MiddlewareFunction {
 			// Encode our new blank context
 			encodedContext, err := encodeContext(&blankContext)
 			if err != nil {
-				fmt.Println("Context Error", err)
+				c.Error(fmt.Sprintf("Context Error %v", err))
 			}
 
 			// Flag the session with it
@@ -30,7 +30,7 @@ func Middleware() gbl.MiddlewareFunction {
 		// Decode the context from the session
 		decodedContext, err := decodeContext(c.GetStringFlag("sess:_bctx"))
 		if err != nil {
-			fmt.Println("Context Decode Error", err)
+			c.Error(fmt.Sprintf("Context Decode Error %v", err))
 			c.Next()
 			return
 		}
@@ -61,7 +61,7 @@ func Middleware() gbl.MiddlewareFunction {
 
 		// Encode any changes to the context and set it on the session
 		if !c.HasFlag("_bctxDecoded") {
-			fmt.Println("_bctxDecoded flag was removed! Context will be unusable")
+			c.Error(fmt.Sprintf("_bctxDecoded flag was removed! Context will be unusable"))
 			return
 		}
 
@@ -69,7 +69,7 @@ func Middleware() gbl.MiddlewareFunction {
 
 		encodedUpdatedContext, err := encodeContext(updatedContext)
 		if err != nil {
-			fmt.Println("Error encoding updated context")
+			c.Error(fmt.Sprintf("Error encoding updated context %v", err))
 		}
 
 		c.Flag("sess:_bctx", encodedUpdatedContext)

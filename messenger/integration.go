@@ -261,7 +261,7 @@ func (m *MessengerIntegration) doResponse(psid string, response *MBResponse) err
 				ID: psid,
 			}, SenderActionTypingOn)
 			if err != nil {
-				fmt.Printf("Error while setting typing %+v\n", err)
+				return err
 			}
 
 			// Sleep for the appropriate amount of time
@@ -287,9 +287,8 @@ func (m *MessengerIntegration) doResponse(psid string, response *MBResponse) err
 				})
 			}
 
-			fmt.Printf("Error while sending message %+v\n", err)
+			return err
 		}
-
 	}
 
 	return nil

@@ -8,7 +8,6 @@ package fb
 
 import (
 	"errors"
-	"fmt"
 	"math/rand"
 	"time"
 
@@ -68,7 +67,7 @@ func CreateImmediateResponse(c *gbl.Context) *MBImmediateResponse {
 // Send will immediately send all messages in the response
 func (im *MBImmediateResponse) Send() error {
 	if im.Context.User.ID == "" {
-		return errors.New("Missing user ID!")
+		return errors.New("missing user id")
 	}
 
 	return im.Integration.doResponse(im.Context.User.ID, &im.MBResponse)
@@ -91,7 +90,7 @@ func (im *MBImmediateResponse) SendThenType() error {
 		ID: im.Context.User.ID,
 	}, SenderActionTypingOn)
 	if err != nil {
-		fmt.Printf("Error while setting typing %+v\n", err)
+		return err
 	}
 
 	return nil

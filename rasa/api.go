@@ -69,7 +69,7 @@ func Middleware(rasa *API) gbl.MiddlewareFunction {
 
 		response, err := rasa.Query(c.Request.Text)
 		if err != nil {
-			fmt.Println(err)
+			c.Error(fmt.Sprintf("RASA ERROR %v", err))
 			c.Next()
 			return
 		}
