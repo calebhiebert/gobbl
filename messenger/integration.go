@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"runtime/debug"
 	"time"
 
 	"github.com/calebhiebert/gobbl"
@@ -25,6 +26,7 @@ type MessengerIntegration struct {
 	DevMode        bool
 	DisableTyping  bool
 	EnableRecovery bool
+	Always200      bool
 }
 
 // GenericRequest extracts a generic request from a facebook webhook request.
@@ -134,12 +136,18 @@ func (m *MessengerIntegration) Respond(c *gbl.Context) (*interface{}, error) {
 
 // ServeHTTP is a http request handler that is specifically built for accepting facebook webhook requests
 func (m *MessengerIntegration) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
-	if m.EnableRecovery {
+	if m.EnableRecovery || m.Always200 {
 		// Recovery function
 		defer func() {
 			if r := recover(); r != nil {
 				fmt.Println("Recovered from panic", r)
-				rw.WriteHeader(http.StatusInternalServerError)
+				fmt.Println("STACK", debug.Stack())
+
+				if m.Always200 {
+					rw.WriteHeader(http.StatusOK)
+				} else {
+					rw.WriteHeader(http.StatusInternalServerError)
+				}
 
 				jsonErr, err := json.Marshal(map[string]interface{}{
 					"error": r,
@@ -176,7 +184,11 @@ func (m *MessengerIntegration) ServeHTTP(rw http.ResponseWriter, req *http.Reque
 		requestBody, err := ioutil.ReadAll(req.Body)
 		if err != nil {
 			fmt.Printf("Error reading request %+v", err)
-			rw.WriteHeader(http.StatusInternalServerError)
+			if m.Always200 {
+				rw.WriteHeader(http.StatusOK)
+			} else {
+				rw.WriteHeader(http.StatusInternalServerError)
+			}
 			return
 		}
 
@@ -185,7 +197,11 @@ func (m *MessengerIntegration) ServeHTTP(rw http.ResponseWriter, req *http.Reque
 		err = json.Unmarshal(requestBody, &webhookRequest)
 		if err != nil {
 			fmt.Printf("Error parsing json request %+v", err)
-			rw.WriteHeader(http.StatusInternalServerError)
+			if m.Always200 {
+				rw.WriteHeader(http.StatusOK)
+			} else {
+				rw.WriteHeader(http.StatusInternalServerError)
+			}
 			return
 		}
 
