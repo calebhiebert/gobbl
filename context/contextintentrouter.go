@@ -1,6 +1,8 @@
 package bctx
 
 import (
+	"fmt"
+
 	"github.com/calebhiebert/gobbl"
 )
 
@@ -106,33 +108,36 @@ func hasAnyContexts(botContext *BotContext, contexts []string) bool {
 	return false
 }
 
+// Middleware generates the middleware required to use this router
 func (cr *RContextIntentRouter) Middleware() gbl.MiddlewareFunction {
 	return func(c *gbl.Context) {
-		if !c.HasFlag("intent") {
-			c.Next()
-			return
-		}
-
 		if c.HasFlag("_bctxDecoded") {
 			botContext := c.GetFlag("_bctxDecoded").(*BotContext)
-			intent := c.GetStringFlag("intent")
 
-			if intentCollection, exists := cr.handlers[intent]; exists {
-				for _, query := range intentCollection {
-					if query.intentOnly {
-						query.handler(c)
-						return
-					} else if query.all != nil && hasAllContexts(botContext, query.all) {
-						query.handler(c)
-						return
-					} else if query.any != nil && hasAnyContexts(botContext, query.any) {
-						query.handler(c)
-						return
+			if c.HasFlag("intent") {
+				intent := c.GetStringFlag("intent")
+
+				if intentCollection, exists := cr.handlers[intent]; exists {
+					c.Trace("Routing for intent " + intent)
+
+					for _, query := range intentCollection {
+						if query.intentOnly {
+							query.handler(c)
+							return
+						} else if query.all != nil && hasAllContexts(botContext, query.all) {
+							query.handler(c)
+							return
+						} else if query.any != nil && hasAnyContexts(botContext, query.any) {
+							query.handler(c)
+							return
+						}
 					}
 				}
 			}
 
 			for _, fallback := range cr.fallbacks {
+				c.Trace(fmt.Sprintf("Checking against fallback %v", fallback))
+
 				if fallback.all != nil && hasAllContexts(botContext, fallback.all) {
 					fallback.handler(c)
 					return
@@ -142,11 +147,17 @@ func (cr *RContextIntentRouter) Middleware() gbl.MiddlewareFunction {
 				}
 			}
 
-			if intentCollection, exists := cr.handlers[intent]; exists {
-				for _, query := range intentCollection {
-					if query.noContext && len(botContext.Contexts) == 0 {
-						query.handler(c)
-						return
+			if c.HasFlag("intent") {
+				intent := c.GetStringFlag("intent")
+
+				if intentCollection, exists := cr.handlers[intent]; exists && len(botContext.Contexts) == 0 {
+					c.Trace("Routing for no context intent " + intent)
+
+					for _, query := range intentCollection {
+						if query.noContext {
+							query.handler(c)
+							return
+						}
 					}
 				}
 			}

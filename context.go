@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	. "github.com/logrusorgru/aurora"
 	"github.com/matoous/go-nanoid"
 )
 
@@ -131,7 +132,25 @@ func (c Context) ClearFlag(key ...string) {
 
 // Log will log a statement to the console
 func (c Context) Log(level, msg string) {
-	fmt.Printf("[+%dms - %s - %s] %s %s", c.Elapsed(), GetCallingFunction(), c.Identifier, level, msg)
+
+	elapsed := Green(fmt.Sprintf("+%dms", c.Elapsed())).Bold()
+	source := Blue(GetCallingFunction())
+	id := Magenta(c.Identifier).Bold()
+
+	switch level {
+	case "INFO":
+		level = Blue(level).String()
+	case "DEBUG":
+		level = Cyan(level).String()
+	case "TRACE":
+		level = Gray(level).String()
+	case "WARN":
+		level = Brown(level).String()
+	case "ERROR":
+		level = Red(level).String()
+	}
+
+	fmt.Printf("[%s | %s | %s] %s %s\n", elapsed, source, id, level, msg)
 }
 
 // Info will log a statement at the INFO level

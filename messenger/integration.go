@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"github.com/calebhiebert/gobbl"
+	. "github.com/logrusorgru/aurora"
 )
 
 type MessengerIntegration struct {
@@ -140,8 +141,8 @@ func (m *MessengerIntegration) ServeHTTP(rw http.ResponseWriter, req *http.Reque
 		// Recovery function
 		defer func() {
 			if r := recover(); r != nil {
-				fmt.Println("Recovered from panic", r)
-				fmt.Println("STACK", debug.Stack())
+				fmt.Println(Red("FB PANIC: "), Red(r))
+				fmt.Println(Red(string(debug.Stack())))
 
 				if m.Always200 {
 					rw.WriteHeader(http.StatusOK)
