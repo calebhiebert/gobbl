@@ -3,6 +3,7 @@ package gbl
 import (
 	"fmt"
 	"runtime"
+	"strings"
 	"time"
 
 	"github.com/matoous/go-nanoid"
@@ -129,33 +130,33 @@ func (c Context) ClearFlag(key ...string) {
 }
 
 // Log will log a statement to the console
-func (c Context) Log(level, format string, args ...interface{}) {
-	fmt.Printf("[+%dms - %s - %s] %s %s", c.Elapsed(), GetCallingFunction(), c.Identifier, level, fmt.Sprintf(format, args...))
+func (c Context) Log(level, msg string) {
+	fmt.Printf("[+%dms - %s - %s] %s %s", c.Elapsed(), GetCallingFunction(), c.Identifier, level, msg)
 }
 
 // Info will log a statement at the INFO level
-func (c Context) Info(format string, args ...interface{}) {
-	c.Log("INFO", format, args...)
+func (c Context) Info(msg string) {
+	c.Log("INFO", msg)
 }
 
 // Debug will log a statement at the DEBUG level
-func (c Context) Debug(format string, args ...interface{}) {
-	c.Log("DEBUG", format, args...)
+func (c Context) Debug(msg string) {
+	c.Log("DEBUG", msg)
 }
 
 // Warn will log a statement at the WARN level
-func (c Context) Warn(format string, args ...interface{}) {
-	c.Log("WARN", format, args...)
+func (c Context) Warn(msg string) {
+	c.Log("WARN", msg)
 }
 
 // Error will log a statement at the ERROR level
-func (c Context) Error(format string, args ...interface{}) {
-	c.Log("ERROR", format, args...)
+func (c Context) Error(msg string) {
+	c.Log("ERROR", msg)
 }
 
 // Trace will log a statement at the TRACE level
-func (c Context) Trace(format string, args ...interface{}) {
-	c.Log("TRACE", format, args...)
+func (c Context) Trace(msg string) {
+	c.Log("TRACE", msg)
 }
 
 // GetCallingFunction will return the name of the function that called
@@ -173,5 +174,7 @@ func GetCallingFunction() string {
 		return "n/a"
 	}
 
-	return fun.Name()
+	nameParts := strings.Split(fun.Name(), ".")
+
+	return nameParts[len(nameParts)-1]
 }
