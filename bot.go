@@ -1,6 +1,10 @@
 // Package gbl contains some helpers for building a chatbot
 package gbl
 
+import (
+	"fmt"
+)
+
 // Bot is a struct with a collection of middlewares
 type Bot struct {
 	middlewares []MiddlewareFunction
@@ -34,8 +38,11 @@ func (b *Bot) Execute(input *InputContext) (*Context, error) {
 		// Danger Danger
 		return nil, err
 	} else if preparedContext.abortErr != nil {
+		preparedContext.Log(10, fmt.Sprintf("Request aborted %v", err), "Bot")
 		return nil, preparedContext.abortErr
 	}
+
+	preparedContext.Log(50, "Request over", "Bot")
 
 	return preparedContext, nil
 }

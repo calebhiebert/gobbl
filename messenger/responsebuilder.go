@@ -8,6 +8,7 @@ package fb
 
 import (
 	"errors"
+	"fmt"
 	"math/rand"
 	"time"
 
@@ -70,17 +71,23 @@ func (im *MBImmediateResponse) Send() error {
 		return errors.New("missing user id")
 	}
 
-	return im.Integration.doResponse(im.Context.User.ID, &im.MBResponse)
+	return im.Integration.doResponse(im.Context.User.ID, &im.MBResponse, im.Context)
 }
 
 // SendThenType will immediately send the messages, and set the bot as typing
-func (im *MBImmediateResponse) SendThenType() error {
+func (im *MBImmediateResponse) SendThenType(done ...chan bool) error {
 	if im.Context.User.ID == "" {
+		if len(done) > 0 {
+			done[0] <- false
+		}
 		return errors.New("missing user id")
 	}
 
-	err := im.Integration.doResponse(im.Context.User.ID, &im.MBResponse)
+	err := im.Integration.doResponse(im.Context.User.ID, &im.MBResponse, im.Context)
 	if err != nil {
+		if len(done) > 0 {
+			done[0] <- false
+		}
 		return err
 	}
 
@@ -90,7 +97,17 @@ func (im *MBImmediateResponse) SendThenType() error {
 		ID: im.Context.User.ID,
 	}, SenderActionTypingOn)
 	if err != nil {
+		if len(done) > 0 {
+			done[0] <- false
+		}
+		im.Context.Log(10, fmt.Sprintf("Error setting typing %v", err), "SendThenType")
 		return err
+	}
+
+	im.Context.Log(50, "Set typing success", "SendThenType")
+
+	if len(done) > 0 {
+		done[0] <- true
 	}
 
 	return nil

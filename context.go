@@ -2,6 +2,8 @@ package gbl
 
 import (
 	"fmt"
+	"os"
+	"strconv"
 	"time"
 
 	"github.com/matoous/go-nanoid"
@@ -24,6 +26,7 @@ type Context struct {
 	Flags       map[string]interface{}
 	Next        NextFunction
 	Identifier  string
+	LogLevel    int
 	abortErr    error
 }
 
@@ -43,7 +46,18 @@ func (ic InputContext) Transform(bot *Bot) *Context {
 		Identifier:  id,
 		R:           ic.Response,
 		AutoRespond: true,
+		LogLevel:    30,
 		Flags:       make(map[string]interface{}),
+	}
+
+	// Grab the log level from the environment
+	if os.Getenv("LOG_LEVEL") != "" {
+		ll, err := strconv.Atoi(os.Getenv("LOG_LEVEL"))
+		if err != nil {
+			ctx.Log(20, "The LOG_LEVEL environment variable must be a positive integer, not "+os.Getenv("LOG_LEVEL"), "LogLevelParser")
+		} else {
+			ctx.LogLevel = ll
+		}
 	}
 
 	return &ctx

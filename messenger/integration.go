@@ -130,7 +130,7 @@ func (m *MessengerIntegration) Respond(c *gbl.Context) (*interface{}, error) {
 
 	response := c.R.(*MBResponse)
 
-	m.doResponse(c.User.ID, response)
+	m.doResponse(c.User.ID, response, c)
 
 	return nil, nil
 }
@@ -247,7 +247,7 @@ func (m *MessengerIntegration) Listen(server *http.Server, bot *gbl.Bot) {
 	}
 }
 
-func (m *MessengerIntegration) doResponse(psid string, response *MBResponse) error {
+func (m *MessengerIntegration) doResponse(psid string, response *MBResponse, c *gbl.Context) error {
 	// Append quick replies to the last message if they exist
 	if len(response.QuickReplies) > 0 {
 		response.Messages[len(response.Messages)-1].QuickReplies = response.QuickReplies
@@ -262,8 +262,10 @@ func (m *MessengerIntegration) doResponse(psid string, response *MBResponse) err
 				ID: psid,
 			}, SenderActionTypingOn)
 			if err != nil {
+				c.Log(10, fmt.Sprintf("Error setting typing %v", err), "FBResponse")
 				return err
 			}
+			c.Log(50, "Set typing success", "FBResponse")
 
 			// Sleep for the appropriate amount of time
 			if len(response.MinTypingTime) == 1 {
@@ -276,10 +278,11 @@ func (m *MessengerIntegration) doResponse(psid string, response *MBResponse) err
 		}
 
 		// Send the message
-		_, err := m.API.SendMessage(&User{
+		resp, err := m.API.SendMessage(&User{
 			ID: psid,
 		}, MessageTypeResponse, &msg)
 		if err != nil {
+			c.Log(10, fmt.Sprintf("Error sending message %v", err), "FBResponse")
 			if m.DevMode {
 				m.API.SendMessage(&User{
 					ID: psid,
@@ -290,6 +293,8 @@ func (m *MessengerIntegration) doResponse(psid string, response *MBResponse) err
 
 			return err
 		}
+
+		c.Log(50, fmt.Sprintf("Sent message %v", resp), "FBResponse")
 	}
 
 	return nil

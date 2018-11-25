@@ -19,6 +19,9 @@ type LogEntry struct {
 
 // Log will log a statement to the console
 func (c Context) Log(level int, msg, source string) {
+	if level > c.LogLevel {
+		return
+	}
 
 	if !c.HasFlag("__logs") {
 		c.Flag("__logs", []LogEntry{})
