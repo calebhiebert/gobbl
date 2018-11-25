@@ -18,10 +18,14 @@ func main() {
 
 	// Create a new bot
 	bot := gbl.New()
+	
+	// Use this middleware to make sure the bot responds to requests 
+	gobblr.Use(gbl.ResponderMiddleware())
 
 	// Use the request extraction middleware
 	// to extract what the user has said from the context
 	bot.Use(gbl.RequestExtractionMiddleware())
+
 
 	// Add a simple middleware that will send an echo response
 	bot.Use(func(c *gbl.Context) {
