@@ -97,15 +97,13 @@ func Middleware(luis *LUIS) gbl.MiddlewareFunction {
 
 			if entity.Resolution.Values != nil {
 				entities[entity.Type] = append(entities[entity.Type], entity.Resolution.Values...)
-			}
-
-			if entity.Resolution.Value != "" {
+			} else if entity.Resolution.Value != "" {
 				entities[entity.Type] = append(entities[entity.Type], entity.Resolution.Value)
-			}
-
-			if len(entities[entity.Type]) == 0 {
+			} else {
 				entities[entity.Type] = append(entities[entity.Type], entity.Entity)
 			}
+
+			c.Log(50, fmt.Sprintf("Processing LUIS Entity %v", entity), "LUIS")
 		}
 
 		for entityType, entityValues := range entities {
