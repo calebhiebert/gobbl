@@ -83,6 +83,10 @@ func (m *MessengerIntegration) GenericRequest(c *gbl.Context) (gbl.GenericReques
 		}
 		c.Flag("fb:eventtype", "payload")
 
+		if fbRequest.Postback.Referral.Ref != "" {
+			c.Flag("fb:referral", fbRequest.Postback.Referral)
+		}
+
 		// Check for a referral
 	} else if fbRequest.Referral.Ref != "" {
 		genericRequest.Text = fbRequest.Referral.Ref
