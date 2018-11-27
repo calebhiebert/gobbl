@@ -40,7 +40,7 @@ type MessengerIntegration struct {
 // quickreply, message, payload, referral, coordinates, attachment
 func (m *MessengerIntegration) GenericRequest(c *gbl.Context) (gbl.GenericRequest, error) {
 	genericRequest := gbl.GenericRequest{}
-	fbRequest := c.RawRequest.(MessagingItem)
+	fbRequest := c.RawRequest.(*MessagingItem)
 
 	// Check for a message id
 	if fbRequest.Message.MID != "" {
@@ -98,7 +98,7 @@ func (m *MessengerIntegration) GenericRequest(c *gbl.Context) (gbl.GenericReques
 func (m *MessengerIntegration) User(c *gbl.Context) (gbl.User, error) {
 	user := gbl.User{}
 
-	fbRequest := c.RawRequest.(MessagingItem)
+	fbRequest := c.RawRequest.(*MessagingItem)
 
 	if fbRequest.Message.MID != "" {
 		if fbRequest.Message.IsEcho {
@@ -133,6 +133,62 @@ func (m *MessengerIntegration) Respond(c *gbl.Context) (*interface{}, error) {
 	m.doResponse(c.User.ID, response, c)
 
 	return nil, nil
+}
+
+// ProcessMessage will execute a single facebook message in the bot
+func (m *MessengerIntegration) ProcessMessage(message *MessagingItem, errChan chan error) {
+
+	// Panic recovery
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println(Red("FB PANIC: "), Red(r))
+			fmt.Println(Red(string(debug.Stack())))
+
+			errChan <- fmt.Errorf("%v", r)
+		}
+	}()
+
+	// Request processing
+	inputCtx := gbl.InputContext{
+		RawRequest:  message,
+		Integration: m,
+		Response:    &MBResponse{},
+	}
+
+	m.Bot.Execute(&inputCtx)
+
+	errChan <- nil
+}
+
+// ProcessWebhookRequest will process an incoming facebook webhook request
+// each messaging item in the request will be processed in it's own goroutine
+func (m *MessengerIntegration) ProcessWebhookRequest(request *WebhookRequest) []error {
+	messages := []MessagingItem{}
+
+	// Loop through facebook's request messages
+	for _, entry := range request.Entry {
+		for _, msg := range entry.Messaging {
+			messages = append(messages, msg)
+		}
+	}
+
+	errChan := make(chan error)
+
+	// Execute each message with the bot
+	for _, message := range messages {
+		go m.ProcessMessage(&message, errChan)
+	}
+
+	var executionErrs = []error{}
+
+	for i := 0; i < len(messages); i++ {
+		err := <-errChan
+		if err != nil {
+			executionErrs = append(executionErrs, err)
+		}
+	}
+
+	return executionErrs
 }
 
 // ServeHTTP is a http request handler that is specifically built for accepting facebook webhook requests
@@ -206,26 +262,7 @@ func (m *MessengerIntegration) ServeHTTP(rw http.ResponseWriter, req *http.Reque
 			return
 		}
 
-		messages := []MessagingItem{}
-
-		// Loop through facebook's request messages
-		for _, entry := range webhookRequest.Entry {
-			for _, msg := range entry.Messaging {
-				messages = append(messages, msg)
-			}
-		}
-
-		// TODO execute all received messages in parallel with goroutines
-		// Execute each message with the bot
-		for _, message := range messages {
-			inputCtx := gbl.InputContext{
-				RawRequest:  message,
-				Integration: m,
-				Response:    &MBResponse{},
-			}
-
-			m.Bot.Execute(&inputCtx)
-		}
+		_ = m.ProcessWebhookRequest(&webhookRequest)
 
 		rw.WriteHeader(http.StatusOK)
 		return
