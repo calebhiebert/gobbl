@@ -88,6 +88,31 @@ func (c Context) Trace(msg string) {
 	c.Log(50, msg, GetCallingFunction())
 }
 
+// Infof will log an info statement with foratted args
+func (c Context) Infof(format string, args ...interface{}) {
+	c.Log(30, fmt.Sprintf(format, args...), GetCallingFunction())
+}
+
+// Debugf will log an debug statement with foratted args
+func (c Context) Debugf(format string, args ...interface{}) {
+	c.Log(40, fmt.Sprintf(format, args...), GetCallingFunction())
+}
+
+// Tracef will log an debug statement with foratted args
+func (c Context) Tracef(format string, args ...interface{}) {
+	c.Log(50, fmt.Sprintf(format, args...), GetCallingFunction())
+}
+
+// Warnf will log an debug statement with foratted args
+func (c Context) Warnf(format string, args ...interface{}) {
+	c.Log(20, fmt.Sprintf(format, args...), GetCallingFunction())
+}
+
+// Errorf will log an debug statement with foratted args
+func (c Context) Errorf(format string, args ...interface{}) {
+	c.Log(10, fmt.Sprintf(format, args...), GetCallingFunction())
+}
+
 // GetCallingFunction will return the name of the function that called
 // the function that calls this function
 func GetCallingFunction() string {
