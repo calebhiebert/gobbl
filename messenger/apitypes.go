@@ -84,6 +84,16 @@ type Button struct {
 	Payload string `json:"payload,omitempty"`
 }
 
+type UploadableAttachment struct {
+	Type    string                      `json:"type"`
+	Payload UploadableAttachmentPayload `json:"payload"`
+}
+
+type UploadableAttachmentPayload struct {
+	IsReusable bool   `json:"is_reusable"`
+	URL        string `json:"url"`
+}
+
 type DefaultAction struct {
 	URL                 string `json:"url"`
 	Type                string `json:"type"`

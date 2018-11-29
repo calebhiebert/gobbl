@@ -62,7 +62,7 @@ func (m *MessengerAPI) SendMessage(recipient *User, messageType string, message 
 		return nil, err
 	}
 
-	responseBody, err := readBodyJson(resp.Body)
+	responseBody, err := readBodyJSON(resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -92,7 +92,7 @@ func (m *MessengerAPI) SenderAction(recipient *User, action string) (interface{}
 		return nil, err
 	}
 
-	responseBody, err := readBodyJson(resp.Body)
+	responseBody, err := readBodyJSON(resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +100,7 @@ func (m *MessengerAPI) SenderAction(recipient *User, action string) (interface{}
 	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
 		return responseBody, nil
 	} else {
-		return nil, errors.New(fmt.Sprintf("%+v", responseBody))
+		return nil, fmt.Errorf("%+v", responseBody)
 	}
 }
 
@@ -111,7 +111,7 @@ func (m *MessengerAPI) UserInfo(psid string) (interface{}, error) {
 		return nil, err
 	}
 
-	body, err := readBodyJson(resp.Body)
+	body, err := readBodyJSON(resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -137,20 +137,54 @@ func (m *MessengerAPI) MessengerProfile(profile *MessengerProfile) (interface{},
 		return nil, err
 	}
 
-	responseBody, err := readBodyJson(resp.Body)
+	responseBody, err := readBodyJSON(resp.Body)
 	if err != nil {
 		return nil, err
 	}
 
 	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
 		return responseBody, nil
+	}
+
+	return nil, fmt.Errorf("%+v", responseBody)
+}
+
+// UploadAttachment will upload an attachment to facebook and return the attachment id
+func (m *MessengerAPI) UploadAttachment(attachment *UploadableAttachment) (string, error) {
+	jsonBytes, err := json.Marshal(map[string]interface{}{
+		"message": map[string]interface{}{
+			"attachment": attachment,
+		},
+	})
+	if err != nil {
+		return "", err
+	}
+
+	url := fmt.Sprintf("%s/me/message_attachments?access_token=%s", m.baseURL, m.accessToken)
+
+	client := http.Client{
+		Timeout: 300 * time.Second,
+	}
+
+	resp, err := client.Post(url, "application/json", bytes.NewReader(jsonBytes))
+	if err != nil {
+		return "", err
+	}
+
+	responseBody, err := readBodyJSON(resp.Body)
+	if err != nil {
+		return "", err
+	}
+
+	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+		return responseBody.(map[string]interface{})["attachment_id"].(string), nil
 	} else {
-		return nil, errors.New(fmt.Sprintf("%+v", responseBody))
+		return "", fmt.Errorf("%+v", responseBody)
 	}
 }
 
-// Reads a http response body and parses the json into an interface
-func readBodyJson(body io.ReadCloser) (interface{}, error) {
+// readBodyJSON reads a http response body and parses the json into an interface
+func readBodyJSON(body io.ReadCloser) (interface{}, error) {
 	defer body.Close()
 
 	bytes, err := ioutil.ReadAll(body)

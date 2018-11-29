@@ -142,10 +142,6 @@ func (m *MBResponse) RandomText(text ...string) {
 	})
 }
 
-func (m *MBResponse) TypingTime(mtt ...time.Duration) {
-	m.MinTypingTime = mtt
-}
-
 // Image will send an image with the following url to the chat
 func (m *MBResponse) Image(url string) {
 	m.Messages = append(m.Messages, OutgoingMessage{
@@ -154,6 +150,20 @@ func (m *MBResponse) Image(url string) {
 			Payload: TemplatePayload{
 				URL:        url,
 				IsReusable: true,
+			},
+		},
+	})
+}
+
+// AttachmentByID will add an attachment message to the response
+// attachmentType can be any valid facebook attachment type
+// ie: video, image, file, etc..
+func (m *MBResponse) AttachmentByID(attachmentType, attachmentID string) {
+	m.Messages = append(m.Messages, OutgoingMessage{
+		Attachment: &OutgoingAttachment{
+			Type: attachmentType,
+			Payload: TemplatePayload{
+				AttachmentID: attachmentID,
 			},
 		},
 	})
@@ -208,6 +218,17 @@ func (ge *GenericTemplateElement) Button(buttons ...Button) *GenericTemplateElem
 	return ge
 }
 
+// Button will add one or more buttons to the template element
+func (t *TemplatePayload) Button(buttons ...Button) *TemplatePayload {
+	if t.Buttons == nil {
+		t.Buttons = []Button{}
+	}
+
+	t.Buttons = append(t.Buttons, buttons...)
+
+	return t
+}
+
 // ImageCard returns a ready-to-go template elment
 func ImageCard(title, subtitle, imageURL string) TemplatePayload {
 	return TemplatePayload{
@@ -233,14 +254,23 @@ func Carousel(elements ...GenericTemplateElement) TemplatePayload {
 
 // Element will add one or more elements to a generic template carousel
 // Do not use this mehtod on a non generic template carousel
-func (c *TemplatePayload) Element(elements ...GenericTemplateElement) *TemplatePayload {
-	if c.Elements != nil {
-		c.Elements = append(c.Elements, elements...)
+func (t *TemplatePayload) Element(elements ...GenericTemplateElement) *TemplatePayload {
+	if t.Elements != nil {
+		t.Elements = append(t.Elements, elements...)
 	} else {
-		c.Elements = elements
+		t.Elements = elements
 	}
 
-	return c
+	return t
+}
+
+// ButtonTemplate creates and returns a new button template
+func ButtonTemplate(text string, buttons ...Button) TemplatePayload {
+	return TemplatePayload{
+		TemplateType: "button",
+		Text:         text,
+		Buttons:      buttons,
+	}
 }
 
 // ButtonURL creates a facebook URL button
