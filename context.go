@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/matoous/go-nanoid"
@@ -28,6 +29,8 @@ type Context struct {
 	Identifier  string
 	LogLevel    int
 	abortErr    error
+	logMutex    *sync.Mutex
+	flagMutex   *sync.Mutex
 }
 
 type AbortFunction func(error)
@@ -48,6 +51,8 @@ func (ic InputContext) Transform(bot *Bot) *Context {
 		AutoRespond: true,
 		LogLevel:    30,
 		Flags:       make(map[string]interface{}),
+		logMutex:    &sync.Mutex{},
+		flagMutex:   &sync.Mutex{},
 	}
 
 	// Grab the log level from the environment
@@ -74,11 +79,17 @@ func (c Context) Elapsed() int64 {
 
 // Flag adds a flag to the context
 func (c Context) Flag(key string, value interface{}) {
+	c.flagMutex.Lock()
 	c.Flags[key] = value
+	c.flagMutex.Unlock()
 }
 
+// HasFlag returns true if a flag exists on the context
+// false otherwise
 func (c Context) HasFlag(key string) bool {
+	c.flagMutex.Lock()
 	_, exists := c.Flags[key]
+	c.flagMutex.Unlock()
 
 	return exists
 }
@@ -87,55 +98,85 @@ func (c *Context) Abort(err error) {
 	c.abortErr = err
 }
 
+// GetFlag will return the flag stored at key
 func (c Context) GetFlag(key string) interface{} {
+	defer c.flagMutex.Unlock()
+	c.flagMutex.Lock()
+
 	return c.Flags[key]
 }
 
 func (c Context) GetIntFlag(key string) int {
+	defer c.flagMutex.Unlock()
+	c.flagMutex.Lock()
 	return c.Flags[key].(int)
 }
 
 func (c Context) GetInt8Flag(key string) int8 {
+	defer c.flagMutex.Unlock()
+	c.flagMutex.Lock()
 	return c.Flags[key].(int8)
 }
 
 func (c Context) GetInt16Flag(key string) int16 {
+	defer c.flagMutex.Unlock()
+	c.flagMutex.Lock()
 	return c.Flags[key].(int16)
 }
 
 func (c Context) GetInt32Flag(key string) int32 {
+	defer c.flagMutex.Unlock()
+	c.flagMutex.Lock()
 	return c.Flags[key].(int32)
 }
 
 func (c Context) GetInt64Flag(key string) int64 {
+	defer c.flagMutex.Unlock()
+	c.flagMutex.Lock()
 	return c.Flags[key].(int64)
 }
 
 func (c Context) GetStringFlag(key string) string {
+	defer c.flagMutex.Unlock()
+	c.flagMutex.Lock()
 	return c.Flags[key].(string)
 }
 
 func (c Context) GetBoolFlag(key string) bool {
+	defer c.flagMutex.Unlock()
+	c.flagMutex.Lock()
 	return c.Flags[key].(bool)
 }
 
 func (c Context) GetFloat64Flag(key string) float64 {
+	defer c.flagMutex.Unlock()
+	c.flagMutex.Lock()
 	return c.Flags[key].(float64)
 }
 
 func (c Context) GetTimeFlag(key string) time.Time {
+	defer c.flagMutex.Unlock()
+	c.flagMutex.Lock()
 	return c.Flags[key].(time.Time)
 }
 
 func (c Context) GetDurationFlag(key string) time.Duration {
+	defer c.flagMutex.Unlock()
+	c.flagMutex.Lock()
 	return c.Flags[key].(time.Duration)
 }
 
 func (c Context) GetStringSliceFlag(key string) []string {
+	defer c.flagMutex.Unlock()
+	c.flagMutex.Lock()
 	return c.Flags[key].([]string)
 }
 
+// ClearFlag will completely delete a flag from the context
 func (c Context) ClearFlag(key ...string) {
+	defer c.flagMutex.Unlock()
+	c.flagMutex.Lock()
+
 	for _, k := range key {
 		delete(c.Flags, k)
 	}

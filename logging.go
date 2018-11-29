@@ -56,9 +56,11 @@ func (c Context) Log(level int, msg, source string) {
 		Message: msg,
 	}
 
+	c.logMutex.Lock()
 	logArr := c.GetFlag("__logs").([]LogEntry)
 	logArr = append(logArr, logEntry)
 	c.Flag("__logs", logArr)
+	c.logMutex.Unlock()
 }
 
 // Info will log a statement at the INFO level
