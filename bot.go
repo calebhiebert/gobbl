@@ -3,21 +3,31 @@ package gbl
 
 import (
 	"fmt"
+	"reflect"
+	"runtime"
 )
 
 // Bot is a struct with a collection of middlewares
 type Bot struct {
-	middlewares []MiddlewareFunction
+	middlewares  []MiddlewareFunction
+	eventChan    chan Event
+	eventHandler EventHandlerFunc
 }
 
 // DispatchFunction is a function used internally to run the middlewares
 type DispatchFunction func(i int) error
 
+// EventHandlerFunc is the function type that will handle bot events
+type EventHandlerFunc func(event *Event)
+
 // New creates a new bot instance
 func New() *Bot {
 	bot := Bot{
 		middlewares: []MiddlewareFunction{},
+		eventChan:   make(chan Event),
 	}
+
+	go handleEvents(&bot)
 
 	return &bot
 }
@@ -33,6 +43,11 @@ func (b *Bot) Use(f MiddlewareFunction) {
 func (b *Bot) Execute(input *InputContext) (*Context, error) {
 	preparedContext := input.Transform(b)
 
+	b.eventChan <- Event{
+		Type:    EVRequestStart,
+		Context: preparedContext,
+	}
+
 	err := b.exec(preparedContext)
 	if err != nil {
 		// Danger Danger
@@ -42,7 +57,10 @@ func (b *Bot) Execute(input *InputContext) (*Context, error) {
 		return nil, preparedContext.abortErr
 	}
 
-	preparedContext.Log(50, "Request over", "Bot")
+	b.eventChan <- Event{
+		Type:    EVRequestEnd,
+		Context: preparedContext,
+	}
 
 	return preparedContext, nil
 }
@@ -71,9 +89,33 @@ func (b *Bot) exec(c *Context) error {
 			dispatch(i + 1)
 		}
 
+		b.eventChan <- Event{
+			Type: EVHandlerCall,
+			HandlerCall: &HandlerCall{
+				Handler:       runtime.FuncForPC(reflect.ValueOf(currentMiddleware).Pointer()).Name(),
+				StackPosition: i,
+			},
+		}
+
 		currentMiddleware(c)
 		return nil
 	}
 
 	return dispatch(0)
+}
+
+// SetEventHandler sets the bot's event handler. This function will be called
+// whenever a bot event is emitted
+func (b *Bot) SetEventHandler(handler EventHandlerFunc) {
+	b.eventHandler = handler
+}
+
+func handleEvents(bot *Bot) {
+	for {
+		event := <-bot.eventChan
+
+		if bot.eventHandler != nil {
+			bot.eventHandler(&event)
+		}
+	}
 }
