@@ -34,39 +34,39 @@ type Event struct {
 			- request_end
 			- handler_call
 	*/
-	Type string
+	Type string `json:"type"`
 
 	// If relevant, this is the context from which the event originated
-	Context *Context
+	Context *Context `json:"ctx"`
 
-	FlagSet    *FlagSet
-	FlagAccess *FlagAccess
-	FlagClear  *FlagClear
+	FlagSet    *FlagSet    `json:"fs"`
+	FlagAccess *FlagAccess `json:"fa"`
+	FlagClear  *FlagClear  `json:"fc"`
 
-	Log *LogEntry
+	Log *LogEntry `json:"log"`
 
-	HandlerCall *HandlerCall
+	HandlerCall *HandlerCall `json:"hc"`
 }
 
 // FlagSet contains the data for a flag set event
 type FlagSet struct {
-	Flag  string
-	Value interface{}
+	Flag  string      `json:"flag"`
+	Value interface{} `json:"value"`
 }
 
 // FlagAccess contains the data for a flag access event
 type FlagAccess struct {
-	Flag             string
-	IsExistenceCheck bool
+	Flag             string `json:"flag"`
+	IsExistenceCheck bool   `json:"isExistenceCheck"`
 }
 
 // FlagClear contains the data for a flag clear event
 type FlagClear struct {
-	Flags []string
+	Flags []string `json:"flags"`
 }
 
 // HandlerCall contains the data for a handler call event
 type HandlerCall struct {
-	Handler       string
-	StackPosition int
+	Handler       string `json:"handler"`
+	StackPosition int    `json:"stackPos"`
 }

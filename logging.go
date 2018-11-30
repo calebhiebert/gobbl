@@ -56,6 +56,14 @@ func (c Context) Log(level int, msg, source string) {
 		Message: msg,
 	}
 
+	if c.bot.eventHandler != nil {
+		c.bot.eventChan <- Event{
+			Type:    EVLog,
+			Log:     &logEntry,
+			Context: &c,
+		}
+	}
+
 	c.logMutex.Lock()
 	logArr := c.GetFlag("__logs").([]LogEntry)
 	logArr = append(logArr, logEntry)

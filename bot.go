@@ -27,8 +27,6 @@ func New() *Bot {
 		eventChan:   make(chan Event),
 	}
 
-	go handleEvents(&bot)
-
 	return &bot
 }
 
@@ -43,9 +41,11 @@ func (b *Bot) Use(f MiddlewareFunction) {
 func (b *Bot) Execute(input *InputContext) (*Context, error) {
 	preparedContext := input.Transform(b)
 
-	b.eventChan <- Event{
-		Type:    EVRequestStart,
-		Context: preparedContext,
+	if b.eventHandler != nil {
+		b.eventChan <- Event{
+			Type:    EVRequestStart,
+			Context: preparedContext,
+		}
 	}
 
 	err := b.exec(preparedContext)
@@ -57,9 +57,11 @@ func (b *Bot) Execute(input *InputContext) (*Context, error) {
 		return nil, preparedContext.abortErr
 	}
 
-	b.eventChan <- Event{
-		Type:    EVRequestEnd,
-		Context: preparedContext,
+	if b.eventHandler != nil {
+		b.eventChan <- Event{
+			Type:    EVRequestEnd,
+			Context: preparedContext,
+		}
 	}
 
 	return preparedContext, nil
@@ -89,12 +91,15 @@ func (b *Bot) exec(c *Context) error {
 			dispatch(i + 1)
 		}
 
-		b.eventChan <- Event{
-			Type: EVHandlerCall,
-			HandlerCall: &HandlerCall{
-				Handler:       runtime.FuncForPC(reflect.ValueOf(currentMiddleware).Pointer()).Name(),
-				StackPosition: i,
-			},
+		if b.eventHandler != nil {
+			b.eventChan <- Event{
+				Type: EVHandlerCall,
+				HandlerCall: &HandlerCall{
+					Handler:       runtime.FuncForPC(reflect.ValueOf(currentMiddleware).Pointer()).Name(),
+					StackPosition: i,
+				},
+				Context: c,
+			}
 		}
 
 		currentMiddleware(c)
@@ -107,7 +112,12 @@ func (b *Bot) exec(c *Context) error {
 // SetEventHandler sets the bot's event handler. This function will be called
 // whenever a bot event is emitted
 func (b *Bot) SetEventHandler(handler EventHandlerFunc) {
+	if b.eventHandler != nil {
+		panic("Event handler already set! An event handler can only be set once")
+	}
+
 	b.eventHandler = handler
+	go handleEvents(b)
 }
 
 func handleEvents(bot *Bot) {

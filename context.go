@@ -17,17 +17,17 @@ type InputContext struct {
 }
 
 type Context struct {
-	RawRequest  interface{}
-	User        User
-	Integration Integration
-	AutoRespond bool
-	R           interface{}
-	Request     GenericRequest
-	StartedAt   int64
-	Flags       map[string]interface{}
-	Next        NextFunction
-	Identifier  string
-	LogLevel    int
+	RawRequest  interface{}            `json:"raw"`
+	User        User                   `json:"user"`
+	Integration Integration            `json:"-"`
+	AutoRespond bool                   `json:"autoRespond"`
+	R           interface{}            `json:"res"`
+	Request     GenericRequest         `json:"req"`
+	StartedAt   int64                  `json:"startedAt"`
+	Flags       map[string]interface{} `json:"-"`
+	Next        NextFunction           `json:"-"`
+	Identifier  string                 `json:"id"`
+	LogLevel    int                    `json:"logLevel"`
 	abortErr    error
 	logMutex    *sync.Mutex
 	flagMutex   *sync.Mutex
@@ -85,12 +85,15 @@ func (c Context) Flag(key string, value interface{}) {
 	c.Flags[key] = value
 	c.flagMutex.Unlock()
 
-	c.bot.eventChan <- Event{
-		Type: EVFlagSet,
-		FlagSet: &FlagSet{
-			Flag:  key,
-			Value: value,
-		},
+	if c.bot.eventHandler != nil {
+		c.bot.eventChan <- Event{
+			Type: EVFlagSet,
+			FlagSet: &FlagSet{
+				Flag:  key,
+				Value: fmt.Sprintf("%+v", value),
+			},
+			Context: &c,
+		}
 	}
 }
 
@@ -101,12 +104,15 @@ func (c Context) HasFlag(key string) bool {
 	_, exists := c.Flags[key]
 	c.flagMutex.Unlock()
 
-	c.bot.eventChan <- Event{
-		Type: EVFlagAccess,
-		FlagAccess: &FlagAccess{
-			Flag:             key,
-			IsExistenceCheck: true,
-		},
+	if c.bot.eventHandler != nil {
+		c.bot.eventChan <- Event{
+			Type: EVFlagAccess,
+			FlagAccess: &FlagAccess{
+				Flag:             key,
+				IsExistenceCheck: true,
+			},
+			Context: &c,
+		}
 	}
 
 	return exists
@@ -120,12 +126,15 @@ func (c *Context) Abort(err error) {
 func (c Context) GetFlag(key string) interface{} {
 	defer c.flagMutex.Unlock()
 
-	c.bot.eventChan <- Event{
-		Type: EVFlagAccess,
-		FlagAccess: &FlagAccess{
-			Flag:             key,
-			IsExistenceCheck: false,
-		},
+	if c.bot.eventHandler != nil {
+		c.bot.eventChan <- Event{
+			Type: EVFlagAccess,
+			FlagAccess: &FlagAccess{
+				Flag:             key,
+				IsExistenceCheck: false,
+			},
+			Context: &c,
+		}
 	}
 
 	c.flagMutex.Lock()
@@ -181,11 +190,14 @@ func (c Context) GetStringSliceFlag(key string) []string {
 func (c Context) ClearFlag(key ...string) {
 	defer c.flagMutex.Unlock()
 
-	c.bot.eventChan <- Event{
-		Type: EVFlagClear,
-		FlagClear: &FlagClear{
-			Flags: key,
-		},
+	if c.bot.eventHandler != nil {
+		c.bot.eventChan <- Event{
+			Type: EVFlagClear,
+			FlagClear: &FlagClear{
+				Flags: key,
+			},
+			Context: &c,
+		}
 	}
 
 	c.flagMutex.Lock()
