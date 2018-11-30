@@ -24,6 +24,11 @@ type MessengerAPI struct {
 	baseURL     string
 }
 
+// OverrideBaseURL overrides the base messenger URL
+func (a *MessengerAPI) OverrideBaseURL(baseURL string) {
+	a.baseURL = baseURL
+}
+
 // CreateMessengerAPI will create a functional messenger api that is setup to use the provided access token.
 // This will create an internal http client with a timeout set to 6 seconds
 func CreateMessengerAPI(accessToken string) *MessengerAPI {
