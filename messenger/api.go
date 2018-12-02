@@ -25,8 +25,8 @@ type MessengerAPI struct {
 }
 
 // OverrideBaseURL overrides the base messenger URL
-func (a *MessengerAPI) OverrideBaseURL(baseURL string) {
-	a.baseURL = baseURL
+func (m *MessengerAPI) OverrideBaseURL(baseURL string) {
+	m.baseURL = baseURL
 }
 
 // CreateMessengerAPI will create a functional messenger api that is setup to use the provided access token.
@@ -34,7 +34,7 @@ func (a *MessengerAPI) OverrideBaseURL(baseURL string) {
 func CreateMessengerAPI(accessToken string) *MessengerAPI {
 	mapi := MessengerAPI{
 		accessToken: strings.TrimSpace(accessToken),
-		baseURL:     "https://graph.facebook.com/v2.6",
+		baseURL:     "https://graph.facebook.com",
 	}
 
 	mapi.http = &http.Client{
@@ -60,7 +60,7 @@ func (m *MessengerAPI) SendMessage(recipient *User, messageType string, message 
 		return nil, err
 	}
 
-	url := fmt.Sprintf("%s/me/messages?access_token=%s", m.baseURL, m.accessToken)
+	url := fmt.Sprintf("%s/v2.6/me/messages?access_token=%s", m.baseURL, m.accessToken)
 
 	resp, err := m.http.Post(url, "application/json", bytes.NewReader(jsonBytes))
 	if err != nil {
@@ -92,7 +92,7 @@ func (m *MessengerAPI) SenderAction(recipient *User, action string) (interface{}
 		return nil, err
 	}
 
-	resp, err := m.http.Post(fmt.Sprintf("%s/me/messages?access_token=%s", m.baseURL, m.accessToken), "application/json", bytes.NewReader(jsonBytes))
+	resp, err := m.http.Post(fmt.Sprintf("%s/v2.6/me/messages?access_token=%s", m.baseURL, m.accessToken), "application/json", bytes.NewReader(jsonBytes))
 	if err != nil {
 		return nil, err
 	}
@@ -111,7 +111,7 @@ func (m *MessengerAPI) SenderAction(recipient *User, action string) (interface{}
 
 // UserInfo will load information on a given psid
 func (m *MessengerAPI) UserInfo(psid string) (interface{}, error) {
-	resp, err := m.http.Get(fmt.Sprintf("https://graph.facebook.com/%s?access_token=%s", psid, m.accessToken))
+	resp, err := m.http.Get(fmt.Sprintf("%s/%s?access_token=%s", m.baseURL, psid, m.accessToken))
 	if err != nil {
 		return nil, err
 	}
@@ -135,7 +135,7 @@ func (m *MessengerAPI) MessengerProfile(profile *MessengerProfile) (interface{},
 		return nil, err
 	}
 
-	url := fmt.Sprintf("%s/me/messenger_profile?access_token=%s", m.baseURL, m.accessToken)
+	url := fmt.Sprintf("%s/v2.6/me/messenger_profile?access_token=%s", m.baseURL, m.accessToken)
 
 	resp, err := m.http.Post(url, "application/json", bytes.NewReader(jsonBytes))
 	if err != nil {
@@ -165,7 +165,7 @@ func (m *MessengerAPI) UploadAttachment(attachment *UploadableAttachment) (strin
 		return "", err
 	}
 
-	url := fmt.Sprintf("%s/me/message_attachments?access_token=%s", m.baseURL, m.accessToken)
+	url := fmt.Sprintf("%s/v2.6/me/message_attachments?access_token=%s", m.baseURL, m.accessToken)
 
 	client := http.Client{
 		Timeout: 300 * time.Second,

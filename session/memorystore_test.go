@@ -3,7 +3,7 @@ package sess
 import "testing"
 
 func TestGet(t *testing.T) {
-	var sess SessionStore = MemoryStore()
+	var sess = MemoryStore()
 
 	_, err := sess.Get("dummy-id")
 	if err != ErrSessionNonexistant {
@@ -12,7 +12,7 @@ func TestGet(t *testing.T) {
 }
 
 func TestCreate(t *testing.T) {
-	var sess SessionStore = MemoryStore()
+	var sess = MemoryStore()
 
 	testData := map[string]interface{}{
 		"test-data": "Wow",
