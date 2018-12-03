@@ -1,3 +1,7 @@
+<p align="center">
+  <img width="460" height="300" src="">
+</p>
+
 # GOBBL
 
 GOBBL stands for **Go Bot Building Library**. It is a quick and easy way to get started with building a chatbot.
@@ -54,6 +58,7 @@ For more documentation check out the [Wiki](https://github.com/calebhiebert/gobb
 
 - Facebook Messenger
 - LUIS
+- Rasa
 
 ### Planned Integrations
 
@@ -61,4 +66,3 @@ For more documentation check out the [Wiki](https://github.com/calebhiebert/gobb
 - Apple Business Chat
 - Chatfuel
 - DialogFlow
-- Rasa

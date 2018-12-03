@@ -30,6 +30,14 @@ type MessengerIntegration struct {
 	Always200      bool
 }
 
+// RetargetRawRequest is the request type that will be set
+// as the raw request when retargeting
+type RetargetRawRequest struct {
+	Type string
+	PSID string
+	Args interface{}
+}
+
 // GenericRequest extracts a generic request from a facebook webhook request.
 // The generic response Text property is set on the following rules
 // If the event is a message, it will the the message text.
@@ -40,58 +48,64 @@ type MessengerIntegration struct {
 // quickreply, message, payload, referral, coordinates, attachment
 func (m *MessengerIntegration) GenericRequest(c *gbl.Context) (gbl.GenericRequest, error) {
 	genericRequest := gbl.GenericRequest{}
-	fbRequest := c.RawRequest.(*MessagingItem)
 
-	// Check for a message id
-	if fbRequest.Message.MID != "" {
+	switch c.RawRequest.(type) {
+	case *MessagingItem:
+		fbRequest := c.RawRequest.(*MessagingItem)
+		// Check for a message id
+		if fbRequest.Message.MID != "" {
 
-		// Check for a quickreply payload
-		if fbRequest.Message.QuickReply.Payload != "" {
-			genericRequest.Text = fbRequest.Message.QuickReply.Payload
-			c.Flag("fb:eventtype", "quickreply")
+			// Check for a quickreply payload
+			if fbRequest.Message.QuickReply.Payload != "" {
+				genericRequest.Text = fbRequest.Message.QuickReply.Payload
+				c.Flag("fb:eventtype", "quickreply")
 
-			// Check for message text
-		} else if fbRequest.Message.Text != "" {
-			genericRequest.Text = fbRequest.Message.Text
-			c.Flag("fb:eventtype", "message")
+				// Check for message text
+			} else if fbRequest.Message.Text != "" {
+				genericRequest.Text = fbRequest.Message.Text
+				c.Flag("fb:eventtype", "message")
 
-			// Check for coordinates
-		} else if len(fbRequest.Message.Attachments) > 0 && fbRequest.Message.Attachments[0].Payload.Coordinates.Lat != 0 {
-			genericRequest.Text = fmt.Sprintf("COORDS LAT %f LONG %f",
-				fbRequest.Message.Attachments[0].Payload.Coordinates.Lat,
-				fbRequest.Message.Attachments[0].Payload.Coordinates.Long)
-			c.Flag("fb:eventtype", "coordinates")
-			c.Flag("fb:location", fbRequest.Message.Attachments[0].Payload.Coordinates)
+				// Check for coordinates
+			} else if len(fbRequest.Message.Attachments) > 0 && fbRequest.Message.Attachments[0].Payload.Coordinates.Lat != 0 {
+				genericRequest.Text = fmt.Sprintf("COORDS LAT %f LONG %f",
+					fbRequest.Message.Attachments[0].Payload.Coordinates.Lat,
+					fbRequest.Message.Attachments[0].Payload.Coordinates.Long)
+				c.Flag("fb:eventtype", "coordinates")
+				c.Flag("fb:location", fbRequest.Message.Attachments[0].Payload.Coordinates)
 
-			// Check for an attachment
-		} else if len(fbRequest.Message.Attachments) > 0 && fbRequest.Message.Attachments[0].Payload.URL != "" {
-			genericRequest.Text = fbRequest.Message.Attachments[0].Payload.URL
-			c.Flag("fb:eventtype", "attachment")
-			c.Flag("fb:attachmenturl", fbRequest.Message.Attachments[0].Payload.URL)
+				// Check for an attachment
+			} else if len(fbRequest.Message.Attachments) > 0 && fbRequest.Message.Attachments[0].Payload.URL != "" {
+				genericRequest.Text = fbRequest.Message.Attachments[0].Payload.URL
+				c.Flag("fb:eventtype", "attachment")
+				c.Flag("fb:attachmenturl", fbRequest.Message.Attachments[0].Payload.URL)
+			}
+
+			// Check for a postback title
+		} else if fbRequest.Postback.Title != "" {
+
+			// First try to use the postback payload
+			if fbRequest.Postback.Payload != "" {
+				genericRequest.Text = fbRequest.Postback.Payload
+
+				// Fall back to the postback title on issues
+			} else {
+				genericRequest.Text = fbRequest.Postback.Title
+			}
+			c.Flag("fb:eventtype", "payload")
+
+			if fbRequest.Postback.Referral.Ref != "" {
+				c.Flag("fb:referral", fbRequest.Postback.Referral)
+			}
+
+			// Check for a referral
+		} else if fbRequest.Referral.Ref != "" {
+			genericRequest.Text = fbRequest.Referral.Ref
+			c.Flag("fb:eventtype", "referral")
+			c.Flag("fb:referral", fbRequest.Referral)
 		}
-
-		// Check for a postback title
-	} else if fbRequest.Postback.Title != "" {
-
-		// First try to use the postback payload
-		if fbRequest.Postback.Payload != "" {
-			genericRequest.Text = fbRequest.Postback.Payload
-
-			// Fall back to the postback title on issues
-		} else {
-			genericRequest.Text = fbRequest.Postback.Title
-		}
-		c.Flag("fb:eventtype", "payload")
-
-		if fbRequest.Postback.Referral.Ref != "" {
-			c.Flag("fb:referral", fbRequest.Postback.Referral)
-		}
-
-		// Check for a referral
-	} else if fbRequest.Referral.Ref != "" {
-		genericRequest.Text = fbRequest.Referral.Ref
-		c.Flag("fb:eventtype", "referral")
-		c.Flag("fb:referral", fbRequest.Referral)
+	case RetargetRawRequest:
+		genericRequest.Text = "RETARGET"
+		c.Flag("fb:eventtype", "retarget")
 	}
 
 	return genericRequest, nil
@@ -102,20 +116,25 @@ func (m *MessengerIntegration) GenericRequest(c *gbl.Context) (gbl.GenericReques
 func (m *MessengerIntegration) User(c *gbl.Context) (gbl.User, error) {
 	user := gbl.User{}
 
-	fbRequest := c.RawRequest.(*MessagingItem)
+	switch c.RawRequest.(type) {
+	case *MessagingItem:
+		fbRequest := c.RawRequest.(*MessagingItem)
 
-	if fbRequest.Message.MID != "" {
-		if fbRequest.Message.IsEcho {
-			user.ID = fbRequest.Recipient.ID
-		} else {
+		if fbRequest.Message.MID != "" {
+			if fbRequest.Message.IsEcho {
+				user.ID = fbRequest.Recipient.ID
+			} else {
+				user.ID = fbRequest.Sender.ID
+			}
+		} else if fbRequest.Postback.Title != "" {
 			user.ID = fbRequest.Sender.ID
+		} else if fbRequest.Referral.Ref != "" {
+			user.ID = fbRequest.Sender.ID
+		} else {
+			return user, errors.New("Unable to determine facebook event type")
 		}
-	} else if fbRequest.Postback.Title != "" {
-		user.ID = fbRequest.Sender.ID
-	} else if fbRequest.Referral.Ref != "" {
-		user.ID = fbRequest.Sender.ID
-	} else {
-		return user, errors.New("Unable to determine facebook event type")
+	case RetargetRawRequest:
+		user.ID = c.RawRequest.(RetargetRawRequest).PSID
 	}
 
 	return user, nil
@@ -286,6 +305,25 @@ func (m *MessengerIntegration) Listen(server *http.Server, bot *gbl.Bot) {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
+}
+
+// Retarget will send a message through the bot with the text RETARGET
+// this can be used to route through the bot in a normal way while
+// sending retargeting messages
+func (m *MessengerIntegration) Retarget(psid, retargetType string, args interface{}) error {
+	inputCtx := gbl.InputContext{
+		RawRequest: RetargetRawRequest{
+			Type: retargetType,
+			PSID: psid,
+			Args: args,
+		},
+		Integration: m,
+		Response:    &MBResponse{},
+	}
+
+	_, err := m.Bot.Execute(&inputCtx)
+
+	return err
 }
 
 func (m *MessengerIntegration) doResponse(psid string, response *MBResponse, c *gbl.Context) error {
