@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="460" height="300" src="">
+  <img width="282" height="250" src="https://raw.githubusercontent.com/calebhiebert/gobbl/master/logo.png">
 </p>
 
 # GOBBL
