@@ -15,9 +15,11 @@ type WebhookEntry struct {
 	ID        string          `json:"id"`
 	Time      int64           `json:"time"`
 	Messaging []MessagingItem `json:"messaging"`
+	Standby   []MessagingItem `json:"standby"`
 }
 
 type MessagingItem struct {
+	IsStandby bool       `json:"standby"`
 	Sender    User       `json:"sender"`
 	Recipient User       `json:"recipient"`
 	Timestamp int64      `json:"timestamp"`

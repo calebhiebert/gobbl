@@ -52,8 +52,19 @@ func (m *MessengerIntegration) GenericRequest(c *gbl.Context) (gbl.GenericReques
 	switch c.RawRequest.(type) {
 	case *MessagingItem:
 		fbRequest := c.RawRequest.(*MessagingItem)
+
+		if fbRequest.IsStandby {
+			c.Trace("CURRENT MESSAGE IS STANDBY")
+			c.Flag("fb:isstandby", true)
+		}
+
 		// Check for a message id
 		if fbRequest.Message.MID != "" {
+
+			if fbRequest.Message.IsEcho == true {
+				c.Trace("CURRENT MESSAGE IS ECHO")
+				c.Flag("fb:isecho", true)
+			}
 
 			// Check for a quickreply payload
 			if fbRequest.Message.QuickReply.Payload != "" {
@@ -192,6 +203,11 @@ func (m *MessengerIntegration) ProcessWebhookRequest(request *WebhookRequest) []
 	for _, entry := range request.Entry {
 		for _, msg := range entry.Messaging {
 			messages = append(messages, msg)
+		}
+
+		for _, sby := range entry.Standby {
+			sby.IsStandby = true
+			messages = append(messages, sby)
 		}
 	}
 
