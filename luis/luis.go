@@ -99,7 +99,7 @@ func Middleware(luis *LUIS) gbl.MiddlewareFunction {
 				entities[entity.Type] = append(entities[entity.Type], entity.Resolution.Values...)
 			} else if entity.Resolution.Value != "" {
 				entities[entity.Type] = append(entities[entity.Type], entity.Resolution.Value)
-			} else {
+			} else if strings.TrimSpace(entity.Entity) != "" {
 				entities[entity.Type] = append(entities[entity.Type], entity.Entity)
 			}
 

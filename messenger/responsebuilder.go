@@ -273,6 +273,17 @@ func ButtonTemplate(text string, buttons ...Button) TemplatePayload {
 	}
 }
 
+// ButtonPhone creates a facebook phone button.
+// phone number must be a complete phone number. eg: +16505551234
+// https://developers.facebook.com/docs/messenger-platform/reference/buttons/call/
+func ButtonPhone(title, phoneNumber string) Button {
+	return Button{
+		Type:    "phone_number",
+		Title:   title,
+		Payload: phoneNumber,
+	}
+}
+
 // ButtonURL creates a facebook URL button
 func ButtonURL(title, url string) Button {
 	return Button{
