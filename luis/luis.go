@@ -4,8 +4,7 @@ Package luis is a luis middleware for gobbl
 This file contains methods for accessing the Microsoft LUIS API
 This middleware will take the c.Request.Text property and use it to query a LUIS endpoint
 The top scoring intent will be stored in the "intent" flag
-The entire result body will be stored in the "luis" flag
-*/
+The entire result body will be stored in the "luis" flag */
 package luis
 
 import (
@@ -116,6 +115,10 @@ func Middleware(luis *LUIS) gbl.MiddlewareFunction {
 
 // Query will make a query against the LUIS api
 func (l LUIS) Query(queryString string) (*Response, error) {
+	if len(queryString) > 500 {
+		queryString = string([]rune(queryString)[:500])
+	}
+
 	resp, err := l.client.Get(l.endpoint + "&q=" + url.QueryEscape(queryString))
 	if err != nil {
 		return nil, err
