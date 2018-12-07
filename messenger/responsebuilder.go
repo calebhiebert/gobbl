@@ -194,6 +194,14 @@ func ImageCardElement(title, subtitle, imageURL string) GenericTemplateElement {
 	}
 }
 
+// TextCardElement returns a facebook GenericTemplateElemnt
+func TextCardElement(title, subtitle string) GenericTemplateElement {
+	return GenericTemplateElement{
+		Title:    title,
+		Subtitle: subtitle,
+	}
+}
+
 // ImageCardElementClickable returns an image card element with the default action set
 func ImageCardElementClickable(title, subtitle, imageURL, actionURL string) GenericTemplateElement {
 	gt := ImageCardElement(title, subtitle, imageURL)
