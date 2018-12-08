@@ -344,7 +344,7 @@ func (m *MessengerIntegration) Retarget(psid, retargetType string, args interfac
 
 func (m *MessengerIntegration) doResponse(psid string, response *MBResponse, c *gbl.Context) error {
 	// Append quick replies to the last message if they exist
-	if len(response.QuickReplies) > 0 {
+	if len(response.QuickReplies) > 0 && len(response.Messages) > 0 {
 		response.Messages[len(response.Messages)-1].QuickReplies = response.QuickReplies
 	}
 
