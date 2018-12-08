@@ -316,3 +316,11 @@ func ButtonShare() Button {
 		Type: "element_share",
 	}
 }
+
+// ButtonShareCustom creates a facebook share button with a custom share payload
+func ButtonShareCustom(shareContents *OutgoingShareMessage) Button {
+	return Button{
+		Type:          "element_share",
+		ShareContents: shareContents,
+	}
+}

@@ -51,6 +51,10 @@ type OutgoingMessage struct {
 	Tag              string              `json:"tag,omitempty"`
 }
 
+type OutgoingShareMessage struct {
+	Attachment OutgoingAttachment `json:"attachment"`
+}
+
 type OutgoingAttachment struct {
 	Type    string          `json:"type,omitempty"`
 	Payload TemplatePayload `json:"payload,omitempty"`
@@ -78,10 +82,11 @@ type GenericTemplateElement struct {
 }
 
 type Button struct {
-	Type    string `json:"type,omitempty"`
-	URL     string `json:"url,omitempty"`
-	Title   string `json:"title,omitempty"`
-	Payload string `json:"payload,omitempty"`
+	Type          string                `json:"type,omitempty"`
+	URL           string                `json:"url,omitempty"`
+	Title         string                `json:"title,omitempty"`
+	Payload       string                `json:"payload,omitempty"`
+	ShareContents *OutgoingShareMessage `json:"share_contents,omitempty"`
 }
 
 type UploadableAttachment struct {
