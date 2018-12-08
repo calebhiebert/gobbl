@@ -6,6 +6,8 @@ import (
 	"github.com/calebhiebert/gobbl"
 )
 
+// Middleware will generate the context middleware, this will take care
+// of setting and managing user sessions
 func Middleware() gbl.MiddlewareFunction {
 	return func(c *gbl.Context) {
 
@@ -54,18 +56,18 @@ func Middleware() gbl.MiddlewareFunction {
 
 		decodedContext.Contexts = liveContexts
 
-		c.Flag("_bctxDecoded", &decodedContext)
+		c.Flag(flagKeyName, &decodedContext)
 
 		// Complete the bot runthrough
 		c.Next()
 
 		// Encode any changes to the context and set it on the session
-		if !c.HasFlag("_bctxDecoded") {
+		if !c.HasFlag(flagKeyName) {
 			c.Error(fmt.Sprintf("_bctxDecoded flag was removed! Context will be unusable"))
 			return
 		}
 
-		updatedContext := c.GetFlag("_bctxDecoded").(*BotContext)
+		updatedContext := c.GetFlag(flagKeyName).(*BotContext)
 
 		encodedUpdatedContext, err := encodeContext(updatedContext)
 		if err != nil {

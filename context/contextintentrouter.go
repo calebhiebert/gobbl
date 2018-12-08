@@ -18,9 +18,15 @@ type ContextRouterQuery struct {
 	handler     gbl.MiddlewareFunction
 }
 
+type ContextMatcherFunc func(ctx *BotContext) bool
+
+// I is a type alias for a list of intents
 type I []string
+
+// C is a type alias for a list of contexts
 type C []string
 
+// ContextIntentRouter will create a new context intent router
 func ContextIntentRouter() *RContextIntentRouter {
 	return &RContextIntentRouter{
 		handlers:  make(map[string][]ContextRouterQuery),
