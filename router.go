@@ -27,6 +27,13 @@ func (r *RIntentRouter) Intent(intent string, handler MiddlewareFunction) {
 	r.handlers[intent] = handler
 }
 
+// Intents will add multiple intents that point to a single handler
+func (r *RIntentRouter) Intents(intents []string, handler MiddlewareFunction) {
+	for _, intent := range intents {
+		r.Intent(intent, handler)
+	}
+}
+
 // Middleware will return a middleware function that should be added to the bot
 func (r *RIntentRouter) Middleware() MiddlewareFunction {
 	return func(c *Context) {
