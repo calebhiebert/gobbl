@@ -19,13 +19,14 @@ type WebhookEntry struct {
 }
 
 type MessagingItem struct {
-	IsStandby bool       `json:"standby"`
-	Sender    User       `json:"sender"`
-	Recipient User       `json:"recipient"`
-	Timestamp int64      `json:"timestamp"`
-	Message   WHMessage  `json:"message"`
-	Postback  WHPostback `json:"postback"`
-	Referral  WHReferral `json:"referral"`
+	IsStandby         bool                `json:"standby"`
+	Sender            User                `json:"sender"`
+	Recipient         User                `json:"recipient"`
+	Timestamp         int64               `json:"timestamp"`
+	Message           WHMessage           `json:"message"`
+	Postback          WHPostback          `json:"postback"`
+	Referral          WHReferral          `json:"referral"`
+	TakeThreadControl WHTakeThreadControl `json:"take_thread_control"`
 }
 
 type WHMessage struct {
@@ -63,6 +64,11 @@ type WHAttachment struct {
 		URL         string        `json:"url"`
 		Coordinates WHCoordinates `json:"coordinates"`
 	} `json:"payload"`
+}
+
+type WHTakeThreadControl struct {
+	PreviousOwnerAppID int64  `json:"previous_owner_app_id"`
+	Metadata           string `json:"metadata"`
 }
 
 type WHCoordinates struct {

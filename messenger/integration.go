@@ -66,6 +66,10 @@ func (m *MessengerIntegration) GenericRequest(c *gbl.Context) (gbl.GenericReques
 				c.Flag("fb:isecho", true)
 			}
 
+			if fbRequest.Message.AppID != 0 {
+				c.Flag("fb:sendingappid", fmt.Sprintf("%d", fbRequest.Message.AppID))
+			}
+
 			// Check for a quickreply payload
 			if fbRequest.Message.QuickReply.Payload != "" {
 				genericRequest.Text = fbRequest.Message.QuickReply.Payload
@@ -113,6 +117,9 @@ func (m *MessengerIntegration) GenericRequest(c *gbl.Context) (gbl.GenericReques
 			genericRequest.Text = fbRequest.Referral.Ref
 			c.Flag("fb:eventtype", "referral")
 			c.Flag("fb:referral", fbRequest.Referral)
+		} else if fbRequest.TakeThreadControl.PreviousOwnerAppID != 0 {
+			c.Flag("fb:eventtype", "take_thread_control")
+			c.Flag("fb:handover:metadata", fbRequest.TakeThreadControl.Metadata)
 		}
 	case RetargetRawRequest:
 		genericRequest.Text = "RETARGET"
@@ -140,6 +147,8 @@ func (m *MessengerIntegration) User(c *gbl.Context) (gbl.User, error) {
 		} else if fbRequest.Postback.Title != "" {
 			user.ID = fbRequest.Sender.ID
 		} else if fbRequest.Referral.Ref != "" {
+			user.ID = fbRequest.Sender.ID
+		} else if fbRequest.TakeThreadControl.PreviousOwnerAppID != 0 {
 			user.ID = fbRequest.Sender.ID
 		} else {
 			return user, errors.New("Unable to determine facebook event type")

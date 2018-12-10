@@ -34,6 +34,21 @@ type User struct {
 	ID string `json:"id"`
 }
 
+type ThreadOwner struct {
+	AppID string `json:"app_id"`
+}
+
+type ThreadOwnerResponse struct {
+	Data []struct {
+		ThreadOwner ThreadOwner `json:"thread_owner"`
+	} `json:"data"`
+}
+
+type MessageResponse struct {
+	RecipientID string `json:"recipient_id"`
+	MessageID   string `json:"message_id"`
+}
+
 type APIError struct {
 	FBTraceID string  `json:"fbtrace_id"`
 	Message   string  `json:"message"`

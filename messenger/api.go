@@ -18,6 +18,7 @@ import (
 	"time"
 )
 
+// MessengerAPI is an API for facebook messenger
 type MessengerAPI struct {
 	accessToken string
 	http        *http.Client
@@ -129,6 +130,7 @@ func (m *MessengerAPI) UserInfo(psid string) (interface{}, error) {
 	}
 }
 
+// MessengerProfile sets messenger profile data
 func (m *MessengerAPI) MessengerProfile(profile *MessengerProfile) (interface{}, error) {
 	jsonBytes, err := json.Marshal(profile)
 	if err != nil {
@@ -186,6 +188,141 @@ func (m *MessengerAPI) UploadAttachment(attachment *UploadableAttachment) (strin
 	} else {
 		return "", fmt.Errorf("%+v", responseBody)
 	}
+}
+
+// ThreadOwner will return the application currently in posession of the thread
+func (m *MessengerAPI) ThreadOwner(psid string) (*ThreadOwnerResponse, error) {
+	resp, err := m.http.Get(fmt.Sprintf("%s/v2.6/me/thread_owner?recipient=%s&access_token=%s", m.baseURL, psid, m.accessToken))
+	if err != nil {
+		return nil, err
+	}
+
+	defer resp.Body.Close()
+
+	bytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+		var toResponse ThreadOwnerResponse
+
+		err = json.Unmarshal(bytes, &toResponse)
+		if err != nil {
+			return nil, err
+		}
+
+		return &toResponse, nil
+	}
+
+	var errResponse interface{}
+
+	err = json.Unmarshal(bytes, &errResponse)
+	if err != nil {
+		return nil, err
+	}
+
+	return nil, fmt.Errorf("%+v", errResponse)
+}
+
+// RequestThreadControl will request thread control for a given thread
+func (m *MessengerAPI) RequestThreadControl(psid, metadata string) (interface{}, error) {
+	body := map[string]interface{}{
+		"recipient": User{ID: psid},
+		"metadata":  metadata,
+	}
+
+	jsonBytes, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := m.http.Post(
+		fmt.Sprintf("%s/v2.6/me/request_thread_control?access_token=%s", m.baseURL, m.accessToken),
+		"application/json",
+		bytes.NewReader(jsonBytes),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	responseBody, err := readBodyJSON(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+		return responseBody, nil
+	}
+
+	return nil, mapError(responseBody)
+}
+
+// TakeThreadControl will take control of a given thread
+func (m *MessengerAPI) TakeThreadControl(psid, metadata string) (interface{}, error) {
+	body := map[string]interface{}{
+		"recipient": User{ID: psid},
+		"metadata":  metadata,
+	}
+
+	jsonBytes, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := m.http.Post(
+		fmt.Sprintf("%s/v2.6/me/take_thread_control?access_token=%s", m.baseURL, m.accessToken),
+		"application/json",
+		bytes.NewReader(jsonBytes),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	responseBody, err := readBodyJSON(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+		return responseBody, nil
+	}
+
+	return nil, mapError(responseBody)
+}
+
+// PassThreadControl will give thread control to an alternate thread
+func (m *MessengerAPI) PassThreadControl(psid, metadata, targetAppID string) (interface{}, error) {
+	body := map[string]interface{}{
+		"recipient":     User{ID: psid},
+		"metadata":      metadata,
+		"target_app_id": targetAppID,
+	}
+
+	jsonBytes, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := m.http.Post(
+		fmt.Sprintf("%s/v2.6/me/pass_thread_control?access_token=%s", m.baseURL, m.accessToken),
+		"application/json",
+		bytes.NewReader(jsonBytes),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	responseBody, err := readBodyJSON(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+		return responseBody, nil
+	}
+
+	return nil, mapError(responseBody)
 }
 
 // readBodyJSON reads a http response body and parses the json into an interface
