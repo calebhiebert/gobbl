@@ -33,6 +33,19 @@ func Middleware(store SessionStore) gbl.MiddlewareFunction {
 	}
 }
 
+// ClearSession will clear all session variables
+func ClearSession(c *gbl.Context) {
+	flags := []string{}
+
+	for k := range c.Flags {
+		if strings.HasPrefix(k, "sess:") {
+			flags = append(flags, k)
+		}
+	}
+
+	c.ClearFlag(flags...)
+}
+
 func populateSessionFlags(c *gbl.Context, data map[string]interface{}) {
 	for k, v := range data {
 		c.Flag("sess:"+k, v)

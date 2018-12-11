@@ -183,7 +183,20 @@ func (c Context) GetDurationFlag(key string) time.Duration {
 }
 
 func (c Context) GetStringSliceFlag(key string) []string {
-	return c.GetFlag(key).([]string)
+	slice := c.GetFlag(key)
+
+	switch slice.(type) {
+	case []string:
+		return slice.([]string)
+	case []interface{}:
+		newSlice := []string{}
+		for _, v := range slice.([]interface{}) {
+			newSlice = append(newSlice, v.(string))
+		}
+		return newSlice
+	}
+
+	return slice.([]string)
 }
 
 // ClearFlag will completely delete a flag from the context
