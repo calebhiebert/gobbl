@@ -150,5 +150,4 @@ func (l LUIS) Query(queryString string) (*Response, error) {
 	}
 
 	return luisResponse, nil
-
 }
