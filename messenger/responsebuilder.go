@@ -185,6 +185,16 @@ func QRText(title string, payload string) QuickReply {
 	}
 }
 
+// QRImage is a helper function to create a text quickreply with an image
+func QRImage(title, payload, imageURL string) QuickReply {
+	return QuickReply{
+		ContentType: "text",
+		Title:       title,
+		Payload:     payload,
+		ImageURL:    imageURL,
+	}
+}
+
 // ImageCardElement returns a facebook GenericTemplateElement
 func ImageCardElement(title, subtitle, imageURL string) GenericTemplateElement {
 	return GenericTemplateElement{
