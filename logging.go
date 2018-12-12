@@ -2,6 +2,7 @@ package gbl
 
 import (
 	"fmt"
+	"os"
 	"runtime"
 	"strconv"
 	"strings"
@@ -27,24 +28,62 @@ func (c Context) Log(level int, msg, source string) {
 		c.Flag("__logs", []LogEntry{})
 	}
 
-	elapsed := aurora.Green(fmt.Sprintf("+%dms", c.Elapsed())).Bold()
-	formattedSource := aurora.Blue(source).String()
-	formattedLevel := ""
-	id := aurora.Magenta(c.Identifier).Bold()
+	useColors := os.Getenv("LOG_COLORS") == "true"
+
+	var (
+		elapsed,
+		formattedSource,
+		formattedLevel,
+		id string
+	)
+
+	if useColors {
+		elapsed = aurora.Green(fmt.Sprintf("+%dms", c.Elapsed())).Bold().String()
+		formattedSource = aurora.Blue(source).String()
+		id = aurora.Magenta(c.Identifier).Bold().String()
+	} else {
+		elapsed = fmt.Sprintf("+%dms", c.Elapsed())
+		formattedSource = source
+		id = c.Identifier
+	}
 
 	switch level {
 	case 30:
-		formattedLevel = aurora.Blue("INFO").String()
+		if useColors {
+			formattedLevel = aurora.Blue("INFO").String()
+		} else {
+			formattedLevel = "INFO"
+		}
 	case 40:
-		formattedLevel = aurora.Cyan("DEBUG").String()
+		if useColors {
+			formattedLevel = aurora.Cyan("DEBUG").String()
+		} else {
+			formattedLevel = "DEBUG"
+		}
 	case 50:
-		formattedLevel = aurora.Gray("TRACE").String()
+		if useColors {
+			formattedLevel = aurora.Gray("TRACE").String()
+		} else {
+			formattedLevel = "TRACE"
+		}
 	case 20:
-		formattedLevel = aurora.Brown("WARN").String()
+		if useColors {
+			formattedLevel = aurora.Brown("WARN").String()
+		} else {
+			formattedLevel = "WARN"
+		}
 	case 10:
-		formattedLevel = aurora.Red("ERROR").String()
+		if useColors {
+			formattedLevel = aurora.Red("ERROR").String()
+		} else {
+			formattedLevel = "ERROR"
+		}
 	default:
-		formattedLevel = aurora.Gray("CLVL " + strconv.Itoa(level)).String()
+		if useColors {
+			formattedLevel = aurora.Gray("CLVL " + strconv.Itoa(level)).String()
+		} else {
+			formattedLevel = "CLVL " + strconv.Itoa(level)
+		}
 	}
 
 	fmt.Printf("[%s | %s | %s] %s %s\n", elapsed, formattedSource, id, formattedLevel, msg)
