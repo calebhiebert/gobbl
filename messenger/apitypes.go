@@ -139,6 +139,7 @@ type MessengerProfile struct {
 	AccountLinkingURL string           `json:"account_linking_url,omitempty"`
 	GetStarted        GetStarted       `json:"get_started,omitempty"`
 	PersistentMenu    []PersistentMenu `json:"persistent_menu,omitempty"`
+	Greeting          []Greeting       `json:"greeting,omitempty"`
 }
 
 type GetStarted struct {
@@ -161,4 +162,9 @@ type MenuItem struct {
 	WebviewHeightRatio string     `json:"webview_height_ratio,omitempty"`
 	FallbackURL        string     `json:"fallback_url,omitempty"`
 	WebviewShareButton string     `json:"webview_share_button,omitempty"`
+}
+
+type Greeting struct {
+	Locale string `json:"locale"`
+	Text   string `json:"text"`
 }
