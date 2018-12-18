@@ -1,5 +1,6 @@
 package gbl
 
+// Integration represents an interface that every integration should provide
 type Integration interface {
 
 	// Extract a "generic request" from the full request, the generic request is in a format that everything in the bot can understand

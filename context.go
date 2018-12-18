@@ -10,12 +10,15 @@ import (
 	"github.com/matoous/go-nanoid"
 )
 
+// InputContext represents the arguments available when executing
+// an incoming request on the bot
 type InputContext struct {
 	RawRequest  interface{}
 	Integration Integration
 	Response    interface{}
 }
 
+// Context is the GOBBL context object
 type Context struct {
 	RawRequest  interface{}            `json:"raw"`
 	User        User                   `json:"user"`
@@ -33,8 +36,6 @@ type Context struct {
 	flagMutex   *sync.Mutex
 	bot         *Bot
 }
-
-type AbortFunction func(error)
 
 // Transform Turns an input context struct into a full context
 func (ic InputContext) Transform(bot *Bot) *Context {
@@ -116,10 +117,6 @@ func (c Context) HasFlag(key string) bool {
 	}
 
 	return exists
-}
-
-func (c *Context) Abort(err error) {
-	c.abortErr = err
 }
 
 // GetFlag will return the flag stored at key

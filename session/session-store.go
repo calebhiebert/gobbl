@@ -1,5 +1,6 @@
 package sess
 
+// SessionStore is the interface that should be impimented for any new session stores
 type SessionStore interface {
 
 	/*

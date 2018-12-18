@@ -6,9 +6,7 @@
 
 package gbl
 
-// INTENT ROUTER
-//
-// This router will route to handlers based on the "intent" flag
+// RIntentRouter will route to handlers based on the "intent" flag
 type RIntentRouter struct {
 	handlers map[string]MiddlewareFunction
 }
@@ -54,9 +52,7 @@ func (r *RIntentRouter) Middleware() MiddlewareFunction {
 	}
 }
 
-// CUSTOM ROUTER
-//
-// This router will route to handlers based on a custom function
+// RCustomRouter will route to handlers based on a custom function
 type RCustomRouter struct {
 	pairs []customRouterPair
 }
@@ -65,6 +61,9 @@ type customRouterPair struct {
 	customFunc CustomRouterFunction
 	handler    MiddlewareFunction
 }
+
+// CustomRouterFunction is a function that will return true if the router
+// should route to the current handler, false otherwise
 type CustomRouterFunction func(c *Context) bool
 
 // CustomRouter will create and return a new custom router
@@ -99,9 +98,7 @@ func (r *RCustomRouter) Middleware() MiddlewareFunction {
 	}
 }
 
-// TEXT ROUTER
-//
-// This router will route to handlers based on the request text
+// RTextRouter will route to handlers based on the request text
 type RTextRouter struct {
 	handlers map[string]MiddlewareFunction
 }

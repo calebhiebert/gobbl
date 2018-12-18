@@ -7,8 +7,11 @@ import (
 	"github.com/calebhiebert/gobbl"
 )
 
+// ErrSessionNonexistant is the error that will be returned when a session does not exist
 var ErrSessionNonexistant = errors.New("Session did not exist")
 
+// Middleware creates the session middleware that will manage sessions using the
+// provided session store
 func Middleware(store SessionStore) gbl.MiddlewareFunction {
 	return func(c *gbl.Context) {
 
@@ -28,7 +31,7 @@ func Middleware(store SessionStore) gbl.MiddlewareFunction {
 
 		err = store.Update(c.User.ID, &sessionToSave)
 		if err != nil {
-			c.Abort(err)
+			c.Errorf("Error while updating the session %v", err)
 		}
 	}
 }

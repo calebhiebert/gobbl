@@ -16,6 +16,7 @@ func MemoryStore() *memoryStore {
 	return &ms
 }
 
+// Create adds a new entry to the session map
 func (m *memoryStore) Create(id string, data *map[string]interface{}) error {
 	m.mutex.Lock()
 	m.sessions[id] = *data
@@ -23,6 +24,7 @@ func (m *memoryStore) Create(id string, data *map[string]interface{}) error {
 	return nil
 }
 
+// Get returns the session from the session map
 func (m *memoryStore) Get(id string) (map[string]interface{}, error) {
 	m.mutex.Lock()
 	session, ok := m.sessions[id]
@@ -34,11 +36,13 @@ func (m *memoryStore) Get(id string) (map[string]interface{}, error) {
 	return session, nil
 }
 
+// Update calls Create
 func (m *memoryStore) Update(id string, data *map[string]interface{}) error {
 	err := m.Create(id, data)
 	return err
 }
 
+// Destroy removes an entry from the session map
 func (m *memoryStore) Destroy(id string) error {
 	m.mutex.Lock()
 	delete(m.sessions, id)

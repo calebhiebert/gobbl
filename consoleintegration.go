@@ -7,9 +7,11 @@ import (
 	"strings"
 )
 
+// ConsoleIntegration provides the gobbl integration interface
 type ConsoleIntegration struct {
 }
 
+// GenericRequest will grab the user's console input
 func (ci *ConsoleIntegration) GenericRequest(c *Context) (GenericRequest, error) {
 	genericRequest := GenericRequest{
 		Text: c.RawRequest.(string),
@@ -18,6 +20,7 @@ func (ci *ConsoleIntegration) GenericRequest(c *Context) (GenericRequest, error)
 	return genericRequest, nil
 }
 
+// User will provide a preset user
 func (ci *ConsoleIntegration) User(c *Context) (User, error) {
 	user := User{
 		ID:        "consoleid",
@@ -29,14 +32,16 @@ func (ci *ConsoleIntegration) User(c *Context) (User, error) {
 	return user, nil
 }
 
+// Respond will print a message to the console
 func (ci *ConsoleIntegration) Respond(c *Context) (*interface{}, error) {
-	for _, msg := range c.R.(*BasicResponse).messages {
-		fmt.Printf("[bot] %s\n", msg)
+	if c.R != nil {
+		fmt.Printf("[bot] %s\n", c.R)
 	}
 
 	return nil, nil
 }
 
+// Listen for incoming console messages
 func (ci *ConsoleIntegration) Listen(bot *Bot) {
 	reader := bufio.NewReader(os.Stdin)
 
@@ -56,7 +61,7 @@ func (ci *ConsoleIntegration) Listen(bot *Bot) {
 			inputCtx := InputContext{
 				RawRequest:  strings.TrimSpace(input),
 				Integration: ci,
-				Response:    &BasicResponse{},
+				Response:    nil,
 			}
 
 			_, err = bot.Execute(&inputCtx)
@@ -65,5 +70,4 @@ func (ci *ConsoleIntegration) Listen(bot *Bot) {
 			}
 		}()
 	}
-
 }
