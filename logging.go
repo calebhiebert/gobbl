@@ -62,13 +62,13 @@ func (c Context) Log(level int, msg, source string) {
 		}
 	case 50:
 		if useColors {
-			formattedLevel = aurora.Gray("TRACE").String()
+			formattedLevel = aurora.Gray(0, "TRACE").String()
 		} else {
 			formattedLevel = "TRACE"
 		}
 	case 20:
 		if useColors {
-			formattedLevel = aurora.Brown("WARN").String()
+			formattedLevel = aurora.BrightYellow("WARN").String()
 		} else {
 			formattedLevel = "WARN"
 		}
@@ -80,7 +80,7 @@ func (c Context) Log(level int, msg, source string) {
 		}
 	default:
 		if useColors {
-			formattedLevel = aurora.Gray("CLVL " + strconv.Itoa(level)).String()
+			formattedLevel = aurora.Gray(0, "CLVL " + strconv.Itoa(level)).String()
 		} else {
 			formattedLevel = "CLVL " + strconv.Itoa(level)
 		}
