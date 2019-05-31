@@ -85,17 +85,6 @@ func (c Context) Flag(key string, value interface{}) {
 	c.flagMutex.Lock()
 	c.Flags[key] = value
 	c.flagMutex.Unlock()
-
-	if c.bot.eventHandler != nil {
-		c.bot.eventChan <- Event{
-			Type: EVFlagSet,
-			FlagSet: &FlagSet{
-				Flag:  key,
-				Value: fmt.Sprintf("%+v", value),
-			},
-			Context: &c,
-		}
-	}
 }
 
 // HasFlag returns true if a flag exists on the context
@@ -105,34 +94,12 @@ func (c Context) HasFlag(key string) bool {
 	_, exists := c.Flags[key]
 	c.flagMutex.Unlock()
 
-	if c.bot.eventHandler != nil {
-		c.bot.eventChan <- Event{
-			Type: EVFlagAccess,
-			FlagAccess: &FlagAccess{
-				Flag:             key,
-				IsExistenceCheck: true,
-			},
-			Context: &c,
-		}
-	}
-
 	return exists
 }
 
 // GetFlag will return the flag stored at key
 func (c Context) GetFlag(key string) interface{} {
 	defer c.flagMutex.Unlock()
-
-	if c.bot.eventHandler != nil {
-		c.bot.eventChan <- Event{
-			Type: EVFlagAccess,
-			FlagAccess: &FlagAccess{
-				Flag:             key,
-				IsExistenceCheck: false,
-			},
-			Context: &c,
-		}
-	}
 
 	c.flagMutex.Lock()
 
@@ -199,16 +166,6 @@ func (c Context) GetStringSliceFlag(key string) []string {
 // ClearFlag will completely delete a flag from the context
 func (c Context) ClearFlag(key ...string) {
 	defer c.flagMutex.Unlock()
-
-	if c.bot.eventHandler != nil {
-		c.bot.eventChan <- Event{
-			Type: EVFlagClear,
-			FlagClear: &FlagClear{
-				Flags: key,
-			},
-			Context: &c,
-		}
-	}
 
 	c.flagMutex.Lock()
 
