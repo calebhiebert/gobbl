@@ -59,10 +59,10 @@ For more documentation check out the [Wiki](https://github.com/calebhiebert/gobb
 - Facebook Messenger
 - LUIS
 - Rasa
+- Telegram
 
 ### Planned Integrations
 
-- Telegram
 - Apple Business Chat
 - Chatfuel
 - DialogFlow
