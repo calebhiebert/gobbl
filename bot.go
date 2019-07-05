@@ -22,6 +22,17 @@ func New() *Bot {
 	return &bot
 }
 
+// Default creates a new bot instance with the default middleware added
+func Default() *Bot {
+	bot := New()
+
+	bot.Use(ResponderMiddleware())
+	bot.Use(RequestExtractionMiddleware())
+	bot.Use(UserExtractionMiddleware())
+
+	return bot
+}
+
 // Use will add a new middleware to the bot.
 // Middlewares will be executed in the order that they were added
 func (b *Bot) Use(f MiddlewareFunction) {
